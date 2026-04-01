@@ -1,4 +1,4 @@
-package fr.ctanchot.locmns.locmns;
+package fr.ctanchot.locmns;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

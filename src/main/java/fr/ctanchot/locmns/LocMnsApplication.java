@@ -1,4 +1,4 @@
-package fr.ctanchot.locmns.locmns;
+package fr.ctanchot.locmns;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
