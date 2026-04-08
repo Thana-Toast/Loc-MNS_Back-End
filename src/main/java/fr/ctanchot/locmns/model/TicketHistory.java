@@ -20,7 +20,7 @@ public class TicketHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ticket_history")
-    private Integer id;
+    private Long id;
 
     @Column(name = "state_change_date", nullable = false)
     @NotNull

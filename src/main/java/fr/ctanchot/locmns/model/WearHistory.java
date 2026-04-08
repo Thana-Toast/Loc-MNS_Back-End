@@ -20,7 +20,7 @@ public class WearHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_wear_history")
-    private Integer id;
+    private Long id;
 
     @Column(name = "wear_change_date", nullable = false)
     @NotNull

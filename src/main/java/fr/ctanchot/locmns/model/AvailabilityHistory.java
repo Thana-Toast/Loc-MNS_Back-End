@@ -20,7 +20,7 @@ public class AvailabilityHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_availability_history")
-    private Integer id;
+    private Long id;
 
     @Column(name = "start_date", nullable = false)
     @NotNull

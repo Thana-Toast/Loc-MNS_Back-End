@@ -18,7 +18,7 @@ public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_document")
-    private Integer id;
+    private Long id;
 
     @Column(name = "title", length = 100, nullable = false)
     @NotBlank

@@ -21,7 +21,7 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    private Integer id;
+    private Long id;
 
     @Column(name = "last_name", length = 50, nullable = false)
     @NotBlank

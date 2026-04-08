@@ -20,7 +20,7 @@ public class RequestHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_request_history")
-    private Integer id;
+    private Long id;
 
     @Column(name = "status_change_date", nullable = false)
     @NotNull

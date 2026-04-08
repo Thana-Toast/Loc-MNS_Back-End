@@ -20,7 +20,7 @@ public class Loan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_loan")
-    private Integer id;
+    private Long id;
 
     @Column(name = "start_date", nullable = false)
     @NotNull

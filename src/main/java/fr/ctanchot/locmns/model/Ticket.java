@@ -21,7 +21,7 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ticket")
-    private Integer id;
+    private Long id;
 
     @Column(name = "date", nullable = false)
     @NotNull

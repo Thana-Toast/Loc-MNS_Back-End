@@ -18,7 +18,7 @@ public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_equipment")
-    private Integer id;
+    private Long id;
 
     @Column(name = "serial_number", length = 50, nullable = false)
     @NotBlank

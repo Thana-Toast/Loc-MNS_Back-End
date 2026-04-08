@@ -18,7 +18,7 @@ public class DocType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_doc_type")
-    private Integer id;
+    private Long id;
 
     @Column(name = "label", length = 30, nullable = false)
     @NotBlank
