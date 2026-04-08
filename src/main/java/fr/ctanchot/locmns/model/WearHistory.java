@@ -22,9 +22,9 @@ public class WearHistory {
     @Column(name = "id_wear_history")
     private Integer id;
 
-    @Column(name = "status_change_date", nullable = false)
+    @Column(name = "wear_change_date", nullable = false)
     @NotNull
-    private LocalDateTime statusChangeDate;
+    private LocalDateTime wearChangeDate;
 
     @Column(name = "status", length = 30, nullable = false)
     @Enumerated(EnumType.STRING)

@@ -22,9 +22,9 @@ public class TicketHistory {
     @Column(name = "id_ticket_history")
     private Integer id;
 
-    @Column(name = "status_change_date", nullable = false)
+    @Column(name = "state_change_date", nullable = false)
     @NotNull
-    private LocalDateTime statusChangeDate;
+    private LocalDateTime stateChangeDate;
 
     @Column(name = "status", length = 30, nullable = false)
     @Enumerated(EnumType.STRING)
