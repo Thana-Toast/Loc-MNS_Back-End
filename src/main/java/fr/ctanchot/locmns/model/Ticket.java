@@ -23,7 +23,7 @@ public class Ticket {
     @Column(name = "id_ticket")
     private Integer id;
 
-    @Column(name = "date", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "date", nullable = false)
     @NotNull
     private LocalDateTime date;
 

@@ -23,7 +23,7 @@ public class AppUser {
     @Column(name = "id_user")
     private Integer id;
 
-    @Column(name = "lastname", length = 50, nullable = false)
+    @Column(name = "last_name", length = 50, nullable = false)
     @NotBlank
     private String lastName;
 
