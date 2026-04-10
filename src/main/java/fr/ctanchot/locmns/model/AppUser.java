@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -51,5 +53,8 @@ public class AppUser {
 
     @Column(name = "is_anonymized")
     private Boolean isAnonymized;
+
+    @OneToMany(mappedBy = "user")
+    private Set<LoanRequest> loanRequests = new HashSet<>();
 
 }
