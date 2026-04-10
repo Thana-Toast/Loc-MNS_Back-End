@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -27,5 +30,8 @@ public class Category {
     @Column(name = "description", length = 200, nullable = false)
     @NotBlank
     private String description;
+
+    @OneToMany(mappedBy = "category")
+    private Set<Equipment> equipments = new HashSet<>();
 
 }

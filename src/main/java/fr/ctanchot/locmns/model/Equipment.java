@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,10 @@ public class Equipment {
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     @NotBlank
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_category", nullable = false)
+    @NotNull
+    private Category category;
 
 }
