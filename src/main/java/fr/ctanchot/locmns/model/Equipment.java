@@ -39,4 +39,7 @@ public class Equipment {
     @OneToMany(mappedBy = "equipment")
     private Set<Ticket> tickets = new HashSet<>();
 
+    @OneToMany(mappedBy = "equipment")
+    private Set<Document> documents = new HashSet<>();
+
 }

@@ -51,4 +51,7 @@ public class Model {
     @OneToMany(mappedBy = "model")
     private Set<Equipment> equipments = new HashSet<>();
 
+    @OneToMany(mappedBy = "model")
+    private Set<Document> documents = new HashSet<>();
+
 }

@@ -35,4 +35,21 @@ public class Document {
     @NotNull
     private DocType docType;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_model")
+    private Model model;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_equipment")
+    private Equipment equipment;
+
+    @AssertTrue(message = "Un document doit être associé SOIT à un modèle SOIT à un équipement")
+    public boolean isValidXorRelationship() {
+
+        boolean hasModel = (this.model != null);
+        boolean hasEquipment = (this.equipment != null);
+
+        return (hasModel && !hasEquipment) || (!hasModel && hasEquipment);
+    }
+
 }
