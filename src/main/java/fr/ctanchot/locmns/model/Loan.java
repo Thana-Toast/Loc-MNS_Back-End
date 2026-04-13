@@ -33,4 +33,9 @@ public class Loan {
     @Column(name = "actual_return_date")
     private LocalDate actualReturnDate;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_loan_request", nullable = false, unique = true)
+    @NotNull
+    private LoanRequest loanRequest;
+
 }

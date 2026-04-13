@@ -41,4 +41,7 @@ public class LoanRequest {
     @NotNull
     private Equipment equipment;
 
+    @OneToOne(mappedBy = "loanRequest")
+    private Loan loan;
+
 }
