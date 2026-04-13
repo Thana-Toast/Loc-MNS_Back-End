@@ -1,7 +1,9 @@
 package fr.ctanchot.locmns.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +29,10 @@ public class Document {
     @Column(name = "file_path", length = 255, nullable = false)
     @NotBlank
     private String filePath;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_doc_type", nullable = false)
+    @NotNull
+    private DocType docType;
 
 }

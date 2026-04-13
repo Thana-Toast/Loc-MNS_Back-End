@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -23,5 +26,8 @@ public class DocType {
     @Column(name = "label", length = 30, nullable = false)
     @NotBlank
     private String label;
+
+    @OneToMany(mappedBy = "docType")
+    private Set<Document> documents = new HashSet<>();
 
 }
