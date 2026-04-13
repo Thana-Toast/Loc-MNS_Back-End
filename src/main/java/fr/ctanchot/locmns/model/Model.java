@@ -40,7 +40,7 @@ public class Model {
     @NotBlank
     private String technicalSpecs;
 
-    @Column(name = "image_path", length = 255")
+    @Column(name = "image_path", length = 255)
     private String imagePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
