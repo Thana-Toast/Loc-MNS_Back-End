@@ -40,4 +40,9 @@ public class Ticket {
     @NotNull
     private Equipment equipment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user", nullable = false)
+    @NotNull
+    private AppUser appUser;
+
 }
