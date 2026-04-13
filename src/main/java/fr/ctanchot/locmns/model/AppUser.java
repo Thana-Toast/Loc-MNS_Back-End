@@ -54,7 +54,7 @@ public class AppUser {
     @Column(name = "is_anonymized")
     private Boolean isAnonymized;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "appUser")
     private Set<LoanRequest> loanRequests = new HashSet<>();
 
 }
