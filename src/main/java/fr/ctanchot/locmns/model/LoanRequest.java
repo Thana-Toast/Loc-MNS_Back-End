@@ -36,4 +36,9 @@ public class LoanRequest {
     @NotNull
     private AppUser user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_equipment", nullable = false)
+    @NotNull
+    private Equipment equipment;
+
 }
