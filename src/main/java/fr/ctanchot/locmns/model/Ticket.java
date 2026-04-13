@@ -35,4 +35,9 @@ public class Ticket {
     @NotBlank
     private String description;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_equipment", nullable = false)
+    @NotNull
+    private Equipment equipment;
+
 }
