@@ -28,18 +28,10 @@ public class Equipment {
     @NotBlank
     private String serialNumber;
 
-    @Column(name = "label", length = 100, nullable = false)
-    @NotBlank
-    private String label;
-
-    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
-    @NotBlank
-    private String description;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_category", nullable = false)
+    @JoinColumn(name = "id_model", nullable = false)
     @NotNull
-    private Category category;
+    private Model model;
 
     @OneToMany(mappedBy = "equipment")
     private Set<LoanRequest> loanRequests = new HashSet<>();

@@ -32,6 +32,6 @@ public class Category {
     private String description;
 
     @OneToMany(mappedBy = "category")
-    private Set<Equipment> equipments = new HashSet<>();
+    private Set<Model> models = new HashSet<>();
 
 }
