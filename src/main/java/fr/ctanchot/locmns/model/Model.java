@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -49,9 +49,9 @@ public class Model {
     private Category category;
 
     @OneToMany(mappedBy = "model")
-    private Set<Equipment> equipments = new HashSet<>();
+    private List<Equipment> equipments = new ArrayList<>();
 
     @OneToMany(mappedBy = "model")
-    private Set<Document> documents = new HashSet<>();
+    private List<Document> documents = new ArrayList<>();
 
 }

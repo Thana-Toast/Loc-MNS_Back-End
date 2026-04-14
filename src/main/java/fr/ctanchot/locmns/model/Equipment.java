@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,12 +34,12 @@ public class Equipment {
     private Model model;
 
     @OneToMany(mappedBy = "equipment")
-    private Set<LoanRequest> loanRequests = new HashSet<>();
+    private List<LoanRequest> loanRequests = new ArrayList<>();
 
     @OneToMany(mappedBy = "equipment")
-    private Set<Ticket> tickets = new HashSet<>();
+    private List<Ticket> tickets = new ArrayList<>();
 
     @OneToMany(mappedBy = "equipment")
-    private Set<Document> documents = new HashSet<>();
+    private List<Document> documents = new ArrayList<>();
 
 }
