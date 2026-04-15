@@ -34,4 +34,11 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private List<Model> models = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_parent_category")
+    private Category parentCategory;
+
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
+    private List<Category> subCategories = new ArrayList<>();
+
 }
