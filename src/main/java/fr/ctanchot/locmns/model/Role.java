@@ -30,4 +30,12 @@ public class Role {
     @ManyToMany(mappedBy = "roles")
     private List<AppUser> appUsers = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "role_category_access",
+            joinColumns = @JoinColumn(name = "id_role"),
+            inverseJoinColumns = @JoinColumn(name = "id_category")
+    )
+    private List<Category> authorizedCategories = new ArrayList<>();
+
 }

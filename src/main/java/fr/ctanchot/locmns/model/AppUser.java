@@ -58,7 +58,8 @@ public class AppUser {
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "id_appuser"),
-            inverseJoinColumns = @JoinColumn(name = "id_role"))
+            inverseJoinColumns = @JoinColumn(name = "id_role")
+    )
     private List<Role> roles = new ArrayList<>();
 
     @OneToMany(mappedBy = "appUser")

@@ -41,4 +41,7 @@ public class Category {
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
     private List<Category> subCategories = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "authorizedCategories")
+    private List<Role> rolesWithAccess = new ArrayList<>();
+
 }
