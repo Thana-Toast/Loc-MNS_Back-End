@@ -32,7 +32,7 @@ public class LoanRequest {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user", nullable = false)
+    @JoinColumn(name = "id_appuser", nullable = false)
     @NotNull
     private AppUser appUser;
 

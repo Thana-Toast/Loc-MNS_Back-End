@@ -22,7 +22,7 @@ public class AppUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_user")
+    @Column(name = "id_appuser")
     private Long id;
 
     @Column(name = "last_name", length = 50, nullable = false)
@@ -53,6 +53,13 @@ public class AppUser {
 
     @Column(name = "is_anonymized")
     private Boolean isAnonymized;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "id_appuser"),
+            inverseJoinColumns = @JoinColumn(name = "id_role"))
+    private List<Role> roles = new ArrayList<>();
 
     @OneToMany(mappedBy = "appUser")
     private List<LoanRequest> loanRequests = new ArrayList<>();
