@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.AppUser;
 import fr.ctanchot.locmns.service.AppUserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class AppUserController {
     @PostMapping("/user")
     public ResponseEntity<AppUser> create(
         @RequestBody
+        @Valid
         AppUser userToInsert
     ) {
         AppUser savedUser = appUserService.save(userToInsert);
@@ -65,6 +67,7 @@ public class AppUserController {
     public ResponseEntity<AppUser> update(
         @PathVariable Long id,
         @RequestBody
+        @Valid
         AppUser userToUpdate
     ) {
 

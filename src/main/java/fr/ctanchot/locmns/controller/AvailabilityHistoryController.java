@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.AvailabilityHistory;
 import fr.ctanchot.locmns.service.AvailabilityHistoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,11 @@ public class AvailabilityHistoryController {
     }
 
     @PostMapping
-    public ResponseEntity<AvailabilityHistory> create(@RequestBody AvailabilityHistory history) {
+    public ResponseEntity<AvailabilityHistory> create(
+            @RequestBody
+            @Valid
+            AvailabilityHistory history
+    ) {
         AvailabilityHistory savedHistory = availabilityHistoryService.save(history);
         return new ResponseEntity<>(savedHistory, HttpStatus.CREATED);
     }
