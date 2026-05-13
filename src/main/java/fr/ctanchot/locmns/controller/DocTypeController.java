@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.DocType;
 import fr.ctanchot.locmns.service.DocTypeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,11 @@ public class DocTypeController {
     }
 
     @PostMapping
-    public ResponseEntity<DocType> create(@RequestBody DocType docType) {
+    public ResponseEntity<DocType> create(
+            @RequestBody
+            @Valid
+            DocType docType
+    ) {
         DocType savedDocType = docTypeService.save(docType);
         return new ResponseEntity<>(savedDocType, HttpStatus.CREATED);
     }

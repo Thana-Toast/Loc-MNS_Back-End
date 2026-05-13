@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.WearHistory;
 import fr.ctanchot.locmns.service.WearHistoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,11 @@ public class WearHistoryController {
     }
 
     @PostMapping
-    public ResponseEntity<WearHistory> create(@RequestBody WearHistory history) {
+    public ResponseEntity<WearHistory> create(
+            @RequestBody
+            @Valid
+            WearHistory history
+    ) {
         WearHistory savedHistory = wearHistoryService.save(history);
         return new ResponseEntity<>(savedHistory, HttpStatus.CREATED);
     }

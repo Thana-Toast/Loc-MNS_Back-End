@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.Document;
 import fr.ctanchot.locmns.service.DocumentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,22 @@ public class DocumentController {
     }
 
     @PostMapping
-    public ResponseEntity<Document> create(@RequestBody Document document) {
+    public ResponseEntity<Document> create(
+            @RequestBody
+            @Valid
+            Document document
+    ) {
         Document savedDocument = documentService.save(document);
         return new ResponseEntity<>(savedDocument, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Document> update(@PathVariable Long id, @RequestBody Document document) {
+    public ResponseEntity<Document> update(
+            @PathVariable Long id,
+            @RequestBody
+            @Valid
+            Document document
+    ) {
         Document updatedDocument = documentService.update(id, document);
         if (updatedDocument == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

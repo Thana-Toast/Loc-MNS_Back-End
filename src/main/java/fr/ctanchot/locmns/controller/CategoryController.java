@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.Category;
 import fr.ctanchot.locmns.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,22 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Category> create(@RequestBody Category category) {
+    public ResponseEntity<Category> create(
+            @RequestBody
+            @Valid
+            Category category
+    ) {
         Category savedCategory = categoryService.save(category);
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category category) {
+    public ResponseEntity<Category> update(
+            @PathVariable Long id,
+            @RequestBody
+            @Valid
+            Category category
+    ) {
         Category updatedCategory = categoryService.update(id, category);
         if (updatedCategory == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.Model;
 import fr.ctanchot.locmns.service.ModelService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,22 @@ public class ModelController {
     }
 
     @PostMapping
-    public ResponseEntity<Model> create(@RequestBody Model model) {
+    public ResponseEntity<Model> create(
+            @RequestBody
+            @Valid
+            Model model
+    ) {
         Model savedModel = modelService.save(model);
         return new ResponseEntity<>(savedModel, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Model> update(@PathVariable Long id, @RequestBody Model model) {
+    public ResponseEntity<Model> update(
+            @PathVariable Long id,
+            @RequestBody
+            @Valid
+            Model model
+    ) {
         Model updatedModel = modelService.update(id, model);
         if (updatedModel == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.Loan;
 import fr.ctanchot.locmns.service.LoanService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,22 @@ public class LoanController {
     }
 
     @PostMapping
-    public ResponseEntity<Loan> create(@RequestBody Loan loan) {
+    public ResponseEntity<Loan> create(
+            @RequestBody
+            @Valid
+            Loan loan
+    ) {
         Loan savedLoan = loanService.save(loan);
         return new ResponseEntity<>(savedLoan, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Loan> update(@PathVariable Long id, @RequestBody Loan loan) {
+    public ResponseEntity<Loan> update(
+            @PathVariable Long id,
+            @RequestBody
+            @Valid
+            Loan loan
+    ) {
         Loan updatedLoan = loanService.update(id, loan);
         if (updatedLoan == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

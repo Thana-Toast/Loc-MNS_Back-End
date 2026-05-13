@@ -2,6 +2,7 @@ package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.RequestHistory;
 import fr.ctanchot.locmns.service.RequestHistoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,11 @@ public class RequestHistoryController {
     }
 
     @PostMapping
-    public ResponseEntity<RequestHistory> create(@RequestBody RequestHistory history) {
+    public ResponseEntity<RequestHistory> create(
+            @RequestBody
+            @Valid
+            RequestHistory history
+    ) {
         RequestHistory savedHistory = requestHistoryService.save(history);
         return new ResponseEntity<>(savedHistory, HttpStatus.CREATED);
     }
