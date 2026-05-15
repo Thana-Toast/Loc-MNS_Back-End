@@ -1,5 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
+import fr.ctanchot.locmns.dto.DocumentDTO;
+import fr.ctanchot.locmns.dto.DocumentMapper;
 import fr.ctanchot.locmns.model.Document;
 import fr.ctanchot.locmns.service.DocumentService;
 import jakarta.validation.Valid;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -17,46 +20,51 @@ import java.util.Optional;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final DocumentMapper documentMapper;
 
     @Autowired
-    public DocumentController(DocumentService documentService) {
+    public DocumentController(DocumentService documentService, DocumentMapper documentMapper) {
         this.documentService = documentService;
+        this.documentMapper = documentMapper;
     }
 
     @GetMapping("/list")
-    public List<Document> getAll() {
-        return documentService.findAll();
+    public List<DocumentDTO> getAll() {
+        return documentService.findAll().stream()
+                .map(documentMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Document> get(@PathVariable Long id) {
+    public ResponseEntity<DocumentDTO> get(@PathVariable Long id) {
         Optional<Document> document = documentService.findById(id);
-        return document.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+        return document.map(value -> new ResponseEntity<>(documentMapper.toDto(value), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
-    public ResponseEntity<Document> create(
+    public ResponseEntity<DocumentDTO> create(
             @RequestBody
             @Valid
-            Document document
+            DocumentDTO documentDto
     ) {
-        Document savedDocument = documentService.save(document);
-        return new ResponseEntity<>(savedDocument, HttpStatus.CREATED);
+        Document documentToInsert = documentMapper.toEntity(documentDto);
+        Document savedDocument = documentService.save(documentToInsert);
+        return new ResponseEntity<>(documentMapper.toDto(savedDocument), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Document> update(
+    public ResponseEntity<DocumentDTO> update(
             @PathVariable Long id,
             @RequestBody
             @Valid
-            Document document
+            DocumentDTO documentDto
     ) {
-        Document updatedDocument = documentService.update(id, document);
+        Document updatedDocument = documentService.update(id, documentDto);
         if (updatedDocument == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(updatedDocument, HttpStatus.OK);
+        return new ResponseEntity<>(documentMapper.toDto(updatedDocument), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
