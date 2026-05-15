@@ -1,6 +1,9 @@
 package fr.ctanchot.locmns.service;
 
+import fr.ctanchot.locmns.dao.CategoryDao;
 import fr.ctanchot.locmns.dao.ModelDao;
+import fr.ctanchot.locmns.dto.ModelDTO;
+import fr.ctanchot.locmns.model.Category;
 import fr.ctanchot.locmns.model.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +15,12 @@ import java.util.Optional;
 public class ModelService {
 
     private final ModelDao modelDao;
+    private final CategoryDao categoryDao;
 
     @Autowired
-    public ModelService(ModelDao modelDao) {
+    public ModelService(ModelDao modelDao, CategoryDao categoryDao) {
         this.modelDao = modelDao;
+        this.categoryDao = categoryDao;
     }
 
     public List<Model> findAll() {
@@ -34,11 +39,23 @@ public class ModelService {
         modelDao.deleteById(id);
     }
 
-    public Model update(Long id, Model modelUpdate) {
+    public Model update(Long id, ModelDTO modelUpdate) {
         Optional<Model> existingModel = modelDao.findById(id);
         if (existingModel.isPresent()) {
-            modelUpdate.setId(id);
-            return modelDao.save(modelUpdate);
+            Model modelToUpdate = existingModel.get();
+            
+            modelToUpdate.setLabel(modelUpdate.getLabel());
+            modelToUpdate.setBrand(modelUpdate.getBrand());
+            modelToUpdate.setDescription(modelUpdate.getDescription());
+            modelToUpdate.setTechnicalSpecs(modelUpdate.getTechnicalSpecs());
+            modelToUpdate.setImagePath(modelUpdate.getImagePath());
+
+            if (modelUpdate.getCategoryId() != null) {
+                Optional<Category> category = categoryDao.findById(modelUpdate.getCategoryId());
+                category.ifPresent(modelToUpdate::setCategory);
+            }
+            
+            return modelDao.save(modelToUpdate);
         }
         return null;
     }
