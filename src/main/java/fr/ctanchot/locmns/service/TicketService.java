@@ -1,10 +1,11 @@
 package fr.ctanchot.locmns.service;
 
+import fr.ctanchot.locmns.dao.AppUserDao;
+import fr.ctanchot.locmns.dao.EquipmentDao;
 import fr.ctanchot.locmns.dao.TicketDao;
 import fr.ctanchot.locmns.dao.TicketHistoryDao;
-import fr.ctanchot.locmns.model.Ticket;
-import fr.ctanchot.locmns.model.TicketHistory;
-import fr.ctanchot.locmns.model.TicketStatus;
+import fr.ctanchot.locmns.dto.TicketDTO;
+import fr.ctanchot.locmns.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +19,15 @@ public class TicketService {
 
     private final TicketDao ticketDao;
     private final TicketHistoryDao ticketHistoryDao;
+    private final AppUserDao appUserDao;
+    private final EquipmentDao equipmentDao;
 
     @Autowired
-    public TicketService(TicketDao ticketDao, TicketHistoryDao ticketHistoryDao) {
+    public TicketService(TicketDao ticketDao, TicketHistoryDao ticketHistoryDao, AppUserDao appUserDao, EquipmentDao equipmentDao) {
         this.ticketDao = ticketDao;
         this.ticketHistoryDao = ticketHistoryDao;
+        this.appUserDao = appUserDao;
+        this.equipmentDao = equipmentDao;
     }
 
     public List<Ticket> findAll() {
@@ -56,12 +61,27 @@ public class TicketService {
         ticketDao.deleteById(id);
     }
 
-    public Ticket update(Long id, Ticket ticketUpdate) {
-        Optional<Ticket> existingTicket = ticketDao.findById(id);
-        if (existingTicket.isPresent()) {
-            ticketUpdate.setId(id);
-            ticketUpdate.setDate(existingTicket.get().getDate());
-            return ticketDao.save(ticketUpdate);
+    public Ticket update(Long id, TicketDTO ticketUpdate) {
+        Optional<Ticket> existingTicketOpt = ticketDao.findById(id);
+        if (existingTicketOpt.isPresent()) {
+            Ticket ticketToUpdate = existingTicketOpt.get();
+            
+            ticketToUpdate.setLabel(ticketUpdate.getLabel());
+            ticketToUpdate.setDescription(ticketUpdate.getDescription());
+
+            if (ticketUpdate.getAppUserId() != null) {
+                Optional<AppUser> user = appUserDao.findById(ticketUpdate.getAppUserId());
+                user.ifPresent(ticketToUpdate::setAppUser);
+            }
+
+            if (ticketUpdate.getEquipmentId() != null) {
+                Optional<Equipment> equipment = equipmentDao.findById(ticketUpdate.getEquipmentId());
+                equipment.ifPresent(ticketToUpdate::setEquipment);
+            }
+            
+            // On ne touche pas à la date originale du ticket
+            
+            return ticketDao.save(ticketToUpdate);
         }
         return null;
     }

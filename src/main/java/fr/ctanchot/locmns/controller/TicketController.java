@@ -1,5 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
+import fr.ctanchot.locmns.dto.TicketDTO;
+import fr.ctanchot.locmns.dto.TicketMapper;
 import fr.ctanchot.locmns.model.Ticket;
 import fr.ctanchot.locmns.model.TicketStatus;
 import fr.ctanchot.locmns.service.TicketService;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -18,46 +21,51 @@ import java.util.Optional;
 public class TicketController {
 
     private final TicketService ticketService;
+    private final TicketMapper ticketMapper;
 
     @Autowired
-    public TicketController(TicketService ticketService) {
+    public TicketController(TicketService ticketService, TicketMapper ticketMapper) {
         this.ticketService = ticketService;
+        this.ticketMapper = ticketMapper;
     }
 
     @GetMapping("/list")
-    public List<Ticket> getAll() {
-        return ticketService.findAll();
+    public List<TicketDTO> getAll() {
+        return ticketService.findAll().stream()
+                .map(ticketMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ticket> get(@PathVariable Long id) {
+    public ResponseEntity<TicketDTO> get(@PathVariable Long id) {
         Optional<Ticket> ticket = ticketService.findById(id);
-        return ticket.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+        return ticket.map(value -> new ResponseEntity<>(ticketMapper.toDto(value), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
-    public ResponseEntity<Ticket> create(
+    public ResponseEntity<TicketDTO> create(
             @RequestBody
             @Valid
-            Ticket ticket
+            TicketDTO ticketDto
     ) {
-        Ticket savedTicket = ticketService.save(ticket);
-        return new ResponseEntity<>(savedTicket, HttpStatus.CREATED);
+        Ticket ticketToInsert = ticketMapper.toEntity(ticketDto);
+        Ticket savedTicket = ticketService.save(ticketToInsert);
+        return new ResponseEntity<>(ticketMapper.toDto(savedTicket), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ticket> update(
+    public ResponseEntity<TicketDTO> update(
             @PathVariable Long id,
             @RequestBody
             @Valid
-            Ticket ticket
+            TicketDTO ticketDto
     ) {
-        Ticket updatedTicket = ticketService.update(id, ticket);
+        Ticket updatedTicket = ticketService.update(id, ticketDto);
         if (updatedTicket == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
+        return new ResponseEntity<>(ticketMapper.toDto(updatedTicket), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
