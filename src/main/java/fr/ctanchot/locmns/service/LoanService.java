@@ -1,6 +1,8 @@
 package fr.ctanchot.locmns.service;
 
 import fr.ctanchot.locmns.dao.LoanDao;
+import fr.ctanchot.locmns.dao.LoanRequestDao;
+import fr.ctanchot.locmns.dto.LoanDTO;
 import fr.ctanchot.locmns.model.Loan;
 import fr.ctanchot.locmns.model.LoanRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,12 @@ import java.util.Optional;
 public class LoanService {
 
     private final LoanDao loanDao;
+    private final LoanRequestDao loanRequestDao;
 
     @Autowired
-    public LoanService(LoanDao loanDao) {
+    public LoanService(LoanDao loanDao, LoanRequestDao loanRequestDao) {
         this.loanDao = loanDao;
+        this.loanRequestDao = loanRequestDao;
     }
 
     public List<Loan> findAll() {
@@ -40,12 +44,22 @@ public class LoanService {
         loanDao.deleteById(id);
     }
 
-    public Loan update(Long id, Loan loanUpdate) {
-        Optional<Loan> existingLoan = loanDao.findById(id);
-        if (existingLoan.isPresent()) {
-            loanUpdate.setId(id);
-            if (isEquipmentAvailable(loanUpdate)) {
-                return loanDao.save(loanUpdate);
+    public Loan update(Long id, LoanDTO loanUpdate) {
+        Optional<Loan> existingLoanOpt = loanDao.findById(id);
+        if (existingLoanOpt.isPresent()) {
+            Loan loanToUpdate = existingLoanOpt.get();
+            
+            loanToUpdate.setStartDate(loanUpdate.getStartDate());
+            loanToUpdate.setEndDate(loanUpdate.getEndDate());
+            loanToUpdate.setActualReturnDate(loanUpdate.getActualReturnDate());
+
+            if (loanUpdate.getLoanRequestId() != null) {
+                Optional<LoanRequest> request = loanRequestDao.findById(loanUpdate.getLoanRequestId());
+                request.ifPresent(loanToUpdate::setLoanRequest);
+            }
+
+            if (isEquipmentAvailable(loanToUpdate)) {
+                return loanDao.save(loanToUpdate);
             } else {
                 throw new RuntimeException("Mise à jour impossible : conflit de dates pour cet équipement.");
             }
@@ -64,6 +78,7 @@ public class LoanService {
         LocalDate end = newLoan.getEndDate();
 
         List<Loan> existingLoans = loanDao.findAll().stream()
+                .filter(l -> l.getLoanRequest() != null && l.getLoanRequest().getEquipment() != null)
                 .filter(l -> l.getLoanRequest().getEquipment().getId().equals(equipmentId))
                 .filter(l -> !l.getId().equals(newLoan.getId()))
                 .toList();

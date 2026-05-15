@@ -1,5 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
+import fr.ctanchot.locmns.dto.LoanDTO;
+import fr.ctanchot.locmns.dto.LoanMapper;
 import fr.ctanchot.locmns.model.Loan;
 import fr.ctanchot.locmns.service.LoanService;
 import jakarta.validation.Valid;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -17,46 +20,51 @@ import java.util.Optional;
 public class LoanController {
 
     private final LoanService loanService;
+    private final LoanMapper loanMapper;
 
     @Autowired
-    public LoanController(LoanService loanService) {
+    public LoanController(LoanService loanService, LoanMapper loanMapper) {
         this.loanService = loanService;
+        this.loanMapper = loanMapper;
     }
 
     @GetMapping("/list")
-    public List<Loan> getAll() {
-        return loanService.findAll();
+    public List<LoanDTO> getAll() {
+        return loanService.findAll().stream()
+                .map(loanMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Loan> get(@PathVariable Long id) {
+    public ResponseEntity<LoanDTO> get(@PathVariable Long id) {
         Optional<Loan> loan = loanService.findById(id);
-        return loan.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+        return loan.map(value -> new ResponseEntity<>(loanMapper.toDto(value), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
-    public ResponseEntity<Loan> create(
+    public ResponseEntity<LoanDTO> create(
             @RequestBody
             @Valid
-            Loan loan
+            LoanDTO loanDto
     ) {
-        Loan savedLoan = loanService.save(loan);
-        return new ResponseEntity<>(savedLoan, HttpStatus.CREATED);
+        Loan loanToInsert = loanMapper.toEntity(loanDto);
+        Loan savedLoan = loanService.save(loanToInsert);
+        return new ResponseEntity<>(loanMapper.toDto(savedLoan), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Loan> update(
+    public ResponseEntity<LoanDTO> update(
             @PathVariable Long id,
             @RequestBody
             @Valid
-            Loan loan
+            LoanDTO loanDto
     ) {
-        Loan updatedLoan = loanService.update(id, loan);
+        Loan updatedLoan = loanService.update(id, loanDto);
         if (updatedLoan == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(updatedLoan, HttpStatus.OK);
+        return new ResponseEntity<>(loanMapper.toDto(updatedLoan), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
