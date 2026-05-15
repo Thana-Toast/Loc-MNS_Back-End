@@ -1,34 +1,42 @@
 package fr.ctanchot.locmns.controller;
 
+import fr.ctanchot.locmns.dto.AppUserDTO;
+import fr.ctanchot.locmns.dto.AppUserMapper;
 import fr.ctanchot.locmns.model.AppUser;
 import fr.ctanchot.locmns.service.AppUserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/user")
 public class AppUserController {
 
     protected AppUserService appUserService;
+    protected AppUserMapper appUserMapper;
 
     @Autowired
-    public AppUserController (AppUserService appUserService) {
+    public AppUserController (AppUserService appUserService, AppUserMapper appUserMapper) {
         this.appUserService = appUserService;
+        this.appUserMapper = appUserMapper;
     }
 
-    @GetMapping("/user/list")
-    public List<AppUser> getAll() {
-        return appUserService.findAll();
+    @GetMapping("/list")
+    public List<AppUserDTO> getAll() {
+        return appUserService.findAll().stream()
+                .map(appUserMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<AppUser> get(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<AppUserDTO> get(@PathVariable Long id) {
 
         Optional<AppUser> optionalAppUser = appUserService.findById(id);
 
@@ -36,20 +44,20 @@ public class AppUserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(optionalAppUser.get(), HttpStatus.OK);
+        return new ResponseEntity<>(appUserMapper.toDto(optionalAppUser.get()), HttpStatus.OK);
     }
 
-    @PostMapping("/user")
-    public ResponseEntity<AppUser> create(
-        @RequestBody
-        @Valid
-        AppUser userToInsert
+    @PostMapping
+    public ResponseEntity<AppUserDTO> create(
+        @Validated @RequestBody
+        AppUserDTO userDtoToInsert
     ) {
+        AppUser userToInsert = appUserMapper.toEntity(userDtoToInsert);
         AppUser savedUser = appUserService.save(userToInsert);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(appUserMapper.toDto(savedUser), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         Optional<AppUser> optionalAppUser = appUserService.findById(id);
@@ -63,20 +71,18 @@ public class AppUserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/user/{id}")
-    public ResponseEntity<AppUser> update(
+    @PutMapping("/{id}")
+    public ResponseEntity<AppUserDTO> update(
         @PathVariable Long id,
-        @RequestBody
-        @Valid
-        AppUser userToUpdate
+        @Validated @RequestBody
+        AppUserDTO userDtoToUpdate
     ) {
-
-        AppUser updatedUser = appUserService.update(id, userToUpdate);
+        AppUser updatedUser = appUserService.update(id, userDtoToUpdate);
 
         if (updatedUser == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        return new ResponseEntity<>(appUserMapper.toDto(updatedUser), HttpStatus.OK);
     }
 }

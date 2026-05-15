@@ -1,6 +1,7 @@
 package fr.ctanchot.locmns.service;
 
 import fr.ctanchot.locmns.dao.AppUserDao;
+import fr.ctanchot.locmns.dto.AppUserDTO;
 import fr.ctanchot.locmns.model.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,12 +40,32 @@ public class AppUserService {
         appUserDao.deleteById(id);
     }
 
-    public AppUser update(Long id, AppUser userUpdate) {
+    public AppUser update(Long id, AppUserDTO userUpdate) {
         Optional<AppUser> existingUser = appUserDao.findById(id);
         if (existingUser.isPresent()) {
-            userUpdate.setId(id);
-            userUpdate.setCreationDate(existingUser.get().getCreationDate());
-            return appUserDao.save(userUpdate);
+            AppUser userToUpdate = existingUser.get();
+            
+            userToUpdate.setLastName(userUpdate.getLastName());
+            userToUpdate.setFirstName(userUpdate.getFirstName());
+            userToUpdate.setEmail(userUpdate.getEmail());
+            
+            if (userUpdate.getPassword() != null && !userUpdate.getPassword().isBlank()) {
+                userToUpdate.setPassword(userUpdate.getPassword());
+            }
+
+            if (userUpdate.getConsentDate() != null) {
+                userToUpdate.setConsentDate(userUpdate.getConsentDate());
+            }
+
+            if (userUpdate.getDepartureDate() != null) {
+                userToUpdate.setDepartureDate(userUpdate.getDepartureDate());
+            }
+
+            if (userUpdate.getIsAnonymized() != null) {
+                userToUpdate.setIsAnonymized(userUpdate.getIsAnonymized());
+            }
+
+            return appUserDao.save(userToUpdate);
         }
         return null;
     }
