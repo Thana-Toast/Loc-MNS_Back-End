@@ -45,4 +45,7 @@ public class Ticket {
     @NotNull
     private AppUser appUser;
 
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<TicketHistory> histories = new java.util.ArrayList<>();
+
 }

@@ -1,28 +1,13 @@
 package fr.ctanchot.locmns.dto;
 
-import fr.ctanchot.locmns.dao.DocTypeDao;
-import fr.ctanchot.locmns.dao.EquipmentDao;
-import fr.ctanchot.locmns.dao.ModelDao;
 import fr.ctanchot.locmns.model.DocType;
 import fr.ctanchot.locmns.model.Document;
 import fr.ctanchot.locmns.model.Equipment;
 import fr.ctanchot.locmns.model.Model;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DocumentMapper {
-
-    private final DocTypeDao docTypeDao;
-    private final ModelDao modelDao;
-    private final EquipmentDao equipmentDao;
-
-    @Autowired
-    public DocumentMapper(DocTypeDao docTypeDao, ModelDao modelDao, EquipmentDao equipmentDao) {
-        this.docTypeDao = docTypeDao;
-        this.modelDao = modelDao;
-        this.equipmentDao = equipmentDao;
-    }
 
     public DocumentDTO toDto(Document entity) {
         if (entity == null) return null;
@@ -59,20 +44,24 @@ public class DocumentMapper {
         entity.setFilePath(dto.getFilePath());
 
         if (dto.getDocTypeId() != null) {
-            DocType docType = docTypeDao.findById(dto.getDocTypeId()).orElse(null);
+            DocType docType = new DocType();
+            docType.setId(dto.getDocTypeId());
             entity.setDocType(docType);
         }
 
         if (dto.getModelId() != null) {
-            Model model = modelDao.findById(dto.getModelId()).orElse(null);
+            Model model = new Model();
+            model.setId(dto.getModelId());
             entity.setModel(model);
         }
 
         if (dto.getEquipmentId() != null) {
-            Equipment equipment = equipmentDao.findById(dto.getEquipmentId()).orElse(null);
+            Equipment equipment = new Equipment();
+            equipment.setId(dto.getEquipmentId());
             entity.setEquipment(equipment);
         }
 
         return entity;
     }
 }
+

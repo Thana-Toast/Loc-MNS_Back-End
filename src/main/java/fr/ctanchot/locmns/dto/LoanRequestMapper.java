@@ -1,24 +1,12 @@
 package fr.ctanchot.locmns.dto;
 
-import fr.ctanchot.locmns.dao.AppUserDao;
-import fr.ctanchot.locmns.dao.EquipmentDao;
 import fr.ctanchot.locmns.model.AppUser;
 import fr.ctanchot.locmns.model.Equipment;
 import fr.ctanchot.locmns.model.LoanRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LoanRequestMapper {
-
-    private final AppUserDao appUserDao;
-    private final EquipmentDao equipmentDao;
-
-    @Autowired
-    public LoanRequestMapper(AppUserDao appUserDao, EquipmentDao equipmentDao) {
-        this.appUserDao = appUserDao;
-        this.equipmentDao = equipmentDao;
-    }
 
     public LoanRequestDTO toDto(LoanRequest entity) {
         if (entity == null) return null;
@@ -50,15 +38,18 @@ public class LoanRequestMapper {
         entity.setDescription(dto.getDescription());
 
         if (dto.getAppUserId() != null) {
-            AppUser user = appUserDao.findById(dto.getAppUserId()).orElse(null);
+            AppUser user = new AppUser();
+            user.setId(dto.getAppUserId());
             entity.setAppUser(user);
         }
 
         if (dto.getEquipmentId() != null) {
-            Equipment equipment = equipmentDao.findById(dto.getEquipmentId()).orElse(null);
+            Equipment equipment = new Equipment();
+            equipment.setId(dto.getEquipmentId());
             entity.setEquipment(equipment);
         }
 
         return entity;
     }
 }
+

@@ -1,27 +1,12 @@
 package fr.ctanchot.locmns.dto;
 
-import fr.ctanchot.locmns.dao.AppUserDao;
-import fr.ctanchot.locmns.dao.EquipmentDao;
-import fr.ctanchot.locmns.dao.TicketHistoryDao;
 import fr.ctanchot.locmns.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 
 @Component
 public class TicketMapper {
-
-    private final EquipmentDao equipmentDao;
-    private final AppUserDao appUserDao;
-    private final TicketHistoryDao ticketHistoryDao;
-
-    @Autowired
-    public TicketMapper(EquipmentDao equipmentDao, AppUserDao appUserDao, TicketHistoryDao ticketHistoryDao) {
-        this.equipmentDao = equipmentDao;
-        this.appUserDao = appUserDao;
-        this.ticketHistoryDao = ticketHistoryDao;
-    }
 
     public TicketDTO toDto(Ticket entity) {
         if (entity == null) return null;
@@ -42,10 +27,9 @@ public class TicketMapper {
             dto.setAppUserFullName(entity.getAppUser().getFirstName() + " " + entity.getAppUser().getLastName());
         }
 
-        // Récupération du statut actuel via l'historique le plus récent
-        if (entity.getId() != null) {
-            ticketHistoryDao.findAll().stream()
-                    .filter(h -> h.getTicket().getId().equals(entity.getId()))
+        // Récupération du statut actuel via l'historique le plus récent sans DAO
+        if (entity.getHistories() != null && !entity.getHistories().isEmpty()) {
+            entity.getHistories().stream()
                     .max(Comparator.comparing(TicketHistory::getStateChangeDate))
                     .ifPresent(latestHistory -> dto.setCurrentStatus(latestHistory.getStatus()));
         }
@@ -63,15 +47,18 @@ public class TicketMapper {
         entity.setDescription(dto.getDescription());
 
         if (dto.getEquipmentId() != null) {
-            Equipment equipment = equipmentDao.findById(dto.getEquipmentId()).orElse(null);
+            Equipment equipment = new Equipment();
+            equipment.setId(dto.getEquipmentId());
             entity.setEquipment(equipment);
         }
 
         if (dto.getAppUserId() != null) {
-            AppUser user = appUserDao.findById(dto.getAppUserId()).orElse(null);
+            AppUser user = new AppUser();
+            user.setId(dto.getAppUserId());
             entity.setAppUser(user);
         }
 
         return entity;
     }
 }
+
