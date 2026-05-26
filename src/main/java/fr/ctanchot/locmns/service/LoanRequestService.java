@@ -4,11 +4,10 @@ import fr.ctanchot.locmns.dao.AppUserDao;
 import fr.ctanchot.locmns.dao.EquipmentDao;
 import fr.ctanchot.locmns.dao.LoanRequestDao;
 import fr.ctanchot.locmns.dto.LoanRequestDTO;
-import fr.ctanchot.locmns.model.AppUser;
-import fr.ctanchot.locmns.model.Equipment;
-import fr.ctanchot.locmns.model.LoanRequest;
+import fr.ctanchot.locmns.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,10 +35,30 @@ public class LoanRequestService {
         return loanRequestDao.findById(id);
     }
 
+    @Transactional
     public LoanRequest save(LoanRequest loanRequest) {
         if (loanRequest.getId() == null) {
             loanRequest.setDate(LocalDateTime.now());
         }
+
+        if (loanRequest.getAppUser() == null || loanRequest.getAppUser().getId() == null) {
+            throw new RuntimeException("L'utilisateur demandeur est obligatoire.");
+        }
+        if (loanRequest.getEquipment() == null || loanRequest.getEquipment().getId() == null) {
+            throw new RuntimeException("L'équipement demandé est obligatoire.");
+        }
+
+        AppUser user = appUserDao.findById(loanRequest.getAppUser().getId())
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable."));
+        
+        Equipment equipment = equipmentDao.findById(loanRequest.getEquipment().getId())
+                .orElseThrow(() -> new RuntimeException("Équipement introuvable."));
+
+        loanRequest.setAppUser(user);
+        loanRequest.setEquipment(equipment);
+
+        validateCategoryAccess(user, equipment);
+
         return loanRequestDao.save(loanRequest);
     }
 
@@ -47,6 +66,7 @@ public class LoanRequestService {
         loanRequestDao.deleteById(id);
     }
 
+    @Transactional
     public LoanRequest update(Long id, LoanRequestDTO loanRequestUpdate) {
         Optional<LoanRequest> existingRequest = loanRequestDao.findById(id);
         if (existingRequest.isPresent()) {
@@ -54,20 +74,41 @@ public class LoanRequestService {
             
             requestToUpdate.setDescription(loanRequestUpdate.getDescription());
 
+            AppUser user = requestToUpdate.getAppUser();
             if (loanRequestUpdate.getAppUserId() != null) {
-                Optional<AppUser> user = appUserDao.findById(loanRequestUpdate.getAppUserId());
-                user.ifPresent(requestToUpdate::setAppUser);
+                user = appUserDao.findById(loanRequestUpdate.getAppUserId())
+                        .orElseThrow(() -> new RuntimeException("Utilisateur introuvable."));
+                requestToUpdate.setAppUser(user);
             }
 
+            Equipment equipment = requestToUpdate.getEquipment();
             if (loanRequestUpdate.getEquipmentId() != null) {
-                Optional<Equipment> equipment = equipmentDao.findById(loanRequestUpdate.getEquipmentId());
-                equipment.ifPresent(requestToUpdate::setEquipment);
+                equipment = equipmentDao.findById(loanRequestUpdate.getEquipmentId())
+                        .orElseThrow(() -> new RuntimeException("Équipement introuvable."));
+                requestToUpdate.setEquipment(equipment);
             }
             
-            // On ne touche pas à la date originale de la demande
+            validateCategoryAccess(user, equipment);
             
             return loanRequestDao.save(requestToUpdate);
         }
         return null;
     }
+
+    private void validateCategoryAccess(AppUser user, Equipment equipment) {
+        Category targetCategory = equipment.getModel().getCategory();
+        
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            throw new RuntimeException("L'utilisateur n'a aucun rôle associé.");
+        }
+        
+        boolean hasAccess = user.getRoles().stream()
+                .flatMap(role -> role.getAuthorizedCategories().stream())
+                .anyMatch(category -> category.getId().equals(targetCategory.getId()));
+
+        if (!hasAccess) {
+            throw new RuntimeException("L'utilisateur n'a pas les droits pour louer des équipements de la catégorie : " + targetCategory.getLabel());
+        }
+    }
 }
+
