@@ -1,4 +1,4 @@
-package fr.ctanchot.locmns.security;
+package fr.ctanchot.locmns.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
