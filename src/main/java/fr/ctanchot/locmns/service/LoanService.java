@@ -77,19 +77,11 @@ public class LoanService {
         LocalDate start = newLoan.getStartDate();
         LocalDate end = newLoan.getEndDate();
 
-        List<Loan> existingLoans = loanDao.findAll().stream()
-                .filter(l -> l.getLoanRequest() != null && l.getLoanRequest().getEquipment() != null)
-                .filter(l -> l.getLoanRequest().getEquipment().getId().equals(equipmentId))
-                .filter(l -> !l.getId().equals(newLoan.getId()))
-                .toList();
-
-        for (Loan existing : existingLoans) {
-            boolean overlap = !start.isAfter(existing.getEndDate()) && !end.isBefore(existing.getStartDate());
-            if (overlap) {
-                return false;
-            }
-        }
-
-        return true;
+        return !loanDao.existsOverlappingLoan(
+                equipmentId,
+                newLoan.getId(),
+                start,
+                end
+        );
     }
 }
