@@ -1,20 +1,11 @@
 package fr.ctanchot.locmns.dto;
 
-import fr.ctanchot.locmns.dao.CategoryDao;
 import fr.ctanchot.locmns.model.Category;
 import fr.ctanchot.locmns.model.Model;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ModelMapper {
-
-    private final CategoryDao categoryDao;
-
-    @Autowired
-    public ModelMapper(CategoryDao categoryDao) {
-        this.categoryDao = categoryDao;
-    }
 
     public ModelDTO toDto(Model entity) {
         if (entity == null) return null;
@@ -47,10 +38,12 @@ public class ModelMapper {
         entity.setImagePath(dto.getImagePath());
 
         if (dto.getCategoryId() != null) {
-            Category category = categoryDao.findById(dto.getCategoryId()).orElse(null);
+            Category category = new Category();
+            category.setId(dto.getCategoryId());
             entity.setCategory(category);
         }
 
         return entity;
     }
 }
+
