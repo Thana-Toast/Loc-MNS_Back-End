@@ -4,6 +4,7 @@ import fr.ctanchot.locmns.dao.AppUserDao;
 import fr.ctanchot.locmns.dto.AppUserDTO;
 import fr.ctanchot.locmns.model.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,10 +15,12 @@ import java.util.Optional;
 public class AppUserService {
 
     private final AppUserDao appUserDao;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AppUserService(AppUserDao appUserDao) {
+    public AppUserService(AppUserDao appUserDao, PasswordEncoder passwordEncoder) {
         this.appUserDao = appUserDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<AppUser> findAll() {
@@ -32,6 +35,9 @@ public class AppUserService {
         if (user.getId() == null) {
             user.setCreationDate(LocalDateTime.now());
             user.setIsAnonymized(false);
+            if (user.getPassword() != null && !user.getPassword().isBlank()) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
         }
         return appUserDao.save(user);
     }
@@ -50,7 +56,7 @@ public class AppUserService {
             userToUpdate.setEmail(userUpdate.getEmail());
             
             if (userUpdate.getPassword() != null && !userUpdate.getPassword().isBlank()) {
-                userToUpdate.setPassword(userUpdate.getPassword());
+                userToUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
             }
 
             if (userUpdate.getConsentDate() != null) {
