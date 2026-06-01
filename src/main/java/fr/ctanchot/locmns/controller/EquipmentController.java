@@ -26,7 +26,6 @@ public class EquipmentController {
     private final EquipmentService equipmentService;
     private final EquipmentMapper equipmentMapper;
 
-    @Autowired
     public EquipmentController(EquipmentService equipmentService, EquipmentMapper equipmentMapper) {
         this.equipmentService = equipmentService;
         this.equipmentMapper = equipmentMapper;

@@ -22,7 +22,6 @@ public class AvailabilityHistoryController {
 
     private final AvailabilityHistoryService availabilityHistoryService;
 
-    @Autowired
     public AvailabilityHistoryController(AvailabilityHistoryService availabilityHistoryService) {
         this.availabilityHistoryService = availabilityHistoryService;
     }

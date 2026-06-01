@@ -26,7 +26,6 @@ public class DocumentController {
     private final DocumentService documentService;
     private final DocumentMapper documentMapper;
 
-    @Autowired
     public DocumentController(DocumentService documentService, DocumentMapper documentMapper) {
         this.documentService = documentService;
         this.documentMapper = documentMapper;

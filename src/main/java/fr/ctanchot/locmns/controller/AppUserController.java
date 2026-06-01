@@ -23,11 +23,10 @@ import java.util.stream.Collectors;
 @Tag(name = "2. Utilisateurs", description = "Gestion des comptes utilisateurs (CRUD)")
 public class AppUserController {
 
-    protected AppUserService appUserService;
-    protected AppUserMapper appUserMapper;
+    private final AppUserService appUserService;
+    private final AppUserMapper appUserMapper;
 
-    @Autowired
-    public AppUserController (AppUserService appUserService, AppUserMapper appUserMapper) {
+    public AppUserController(AppUserService appUserService, AppUserMapper appUserMapper) {
         this.appUserService = appUserService;
         this.appUserMapper = appUserMapper;
     }

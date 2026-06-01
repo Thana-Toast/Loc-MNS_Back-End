@@ -26,7 +26,6 @@ public class LoanRequestController {
     private final LoanRequestService loanRequestService;
     private final LoanRequestMapper loanRequestMapper;
 
-    @Autowired
     public LoanRequestController(LoanRequestService loanRequestService, LoanRequestMapper loanRequestMapper) {
         this.loanRequestService = loanRequestService;
         this.loanRequestMapper = loanRequestMapper;

@@ -22,7 +22,6 @@ public class WearHistoryController {
 
     private final WearHistoryService wearHistoryService;
 
-    @Autowired
     public WearHistoryController(WearHistoryService wearHistoryService) {
         this.wearHistoryService = wearHistoryService;
     }

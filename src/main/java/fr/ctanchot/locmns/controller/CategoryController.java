@@ -26,7 +26,6 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final CategoryMapper categoryMapper;
 
-    @Autowired
     public CategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
         this.categoryService = categoryService;
         this.categoryMapper = categoryMapper;

@@ -22,7 +22,6 @@ public class DocTypeController {
 
     private final DocTypeService docTypeService;
 
-    @Autowired
     public DocTypeController(DocTypeService docTypeService) {
         this.docTypeService = docTypeService;
     }

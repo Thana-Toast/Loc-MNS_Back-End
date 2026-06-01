@@ -22,7 +22,6 @@ public class RequestHistoryController {
 
     private final RequestHistoryService requestHistoryService;
 
-    @Autowired
     public RequestHistoryController(RequestHistoryService requestHistoryService) {
         this.requestHistoryService = requestHistoryService;
     }

@@ -26,7 +26,6 @@ public class ModelController {
     private final ModelService modelService;
     private final ModelMapper modelMapper;
 
-    @Autowired
     public ModelController(ModelService modelService, ModelMapper modelMapper) {
         this.modelService = modelService;
         this.modelMapper = modelMapper;
