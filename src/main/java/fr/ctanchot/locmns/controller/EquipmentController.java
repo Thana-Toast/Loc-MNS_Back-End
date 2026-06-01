@@ -4,6 +4,9 @@ import fr.ctanchot.locmns.dto.EquipmentDTO;
 import fr.ctanchot.locmns.dto.EquipmentMapper;
 import fr.ctanchot.locmns.model.Equipment;
 import fr.ctanchot.locmns.service.EquipmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/equipment")
+@Tag(name = "3. Équipements", description = "Gestion du matériel informatique physique (CRUD)")
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
@@ -29,6 +33,9 @@ public class EquipmentController {
     }
 
     @GetMapping("/list")
+    @Operation(summary = "Récupérer la liste des équipements", description = "Retourne la liste de tous les matériels du parc informatique au format DTO.")
+    @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Authentification obligatoire")
     public List<EquipmentDTO> getAll() {
         return equipmentService.findAll().stream()
                 .map(equipmentMapper::toDto)
@@ -36,6 +43,9 @@ public class EquipmentController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Récupérer un équipement par son ID", description = "Retourne les détails d'un équipement informatique spécifique en fonction de son ID.")
+    @ApiResponse(responseCode = "200", description = "Équipement trouvé et renvoyé")
+    @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     public ResponseEntity<EquipmentDTO> get(@PathVariable Long id) {
         Optional<Equipment> equipment = equipmentService.findById(id);
         return equipment.map(value -> new ResponseEntity<>(equipmentMapper.toDto(value), HttpStatus.OK))
@@ -43,6 +53,9 @@ public class EquipmentController {
     }
 
     @PostMapping
+    @Operation(summary = "Ajouter un nouvel équipement", description = "Crée un nouvel équipement physique dans le stock (ex: avec numéro de série).")
+    @ApiResponse(responseCode = "201", description = "Équipement créé avec succès")
+    @ApiResponse(responseCode = "400", description = "Données d'équipement invalides")
     public ResponseEntity<EquipmentDTO> create(
             @RequestBody
             @Valid
@@ -54,6 +67,9 @@ public class EquipmentController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Mettre à jour un équipement", description = "Met à jour les informations d'un équipement existant (numéro de série, modèle lié).")
+    @ApiResponse(responseCode = "200", description = "Équipement mis à jour avec succès")
+    @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     public ResponseEntity<EquipmentDTO> update(
             @PathVariable Long id,
             @RequestBody
@@ -68,6 +84,9 @@ public class EquipmentController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer un équipement", description = "Supprime définitivement un équipement du parc informatique par son ID.")
+    @ApiResponse(responseCode = "204", description = "Équipement supprimé avec succès")
+    @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Equipment> equipment = equipmentService.findById(id);
         if (equipment.isEmpty()) {
@@ -77,3 +96,4 @@ public class EquipmentController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
+

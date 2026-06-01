@@ -7,6 +7,9 @@ import fr.ctanchot.locmns.model.Role;
 import fr.ctanchot.locmns.security.AppUserDetails;
 import fr.ctanchot.locmns.security.JwtService;
 import fr.ctanchot.locmns.service.AppUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
+@Tag(name = "1. Authentification", description = "Endpoints de connexion et d'inscription des utilisateurs")
 public class AuthController {
 
     private final AppUserService appUserService;
@@ -33,6 +37,9 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/sign-in")
+    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouvel utilisateur et chiffre son mot de passe en base de données.")
+    @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès")
+    @ApiResponse(responseCode = "400", description = "Format de requête invalide ou email déjà existant")
     public ResponseEntity<AppUserDTO> signIn(@Validated @RequestBody AppUserDTO userDtoToInsert) {
         AppUser userToInsert = appUserMapper.toEntity(userDtoToInsert);
         AppUser savedUser = appUserService.save(userToInsert);
@@ -40,6 +47,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Connexion de l'utilisateur", description = "Vérifie les identifiants et génère un jeton JWT contenant les rôles de l'utilisateur.")
+    @ApiResponse(responseCode = "200", description = "Authentification réussie, retourne le jeton JWT")
+    @ApiResponse(responseCode = "401", description = "Identifiants (email ou mot de passe) incorrects")
     public ResponseEntity<String> login(@RequestBody AppUser loginRequest) {
         try {
             UsernamePasswordAuthenticationToken authToken =
@@ -60,4 +70,5 @@ public class AuthController {
         }
     }
 }
+
 
