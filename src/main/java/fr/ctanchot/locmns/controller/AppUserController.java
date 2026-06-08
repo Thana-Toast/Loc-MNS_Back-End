@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/user")
-@Tag(name = "2. Utilisateurs", description = "Gestion des comptes utilisateurs (CRUD)")
+@Tag(name = "02. Utilisateurs", description = "Gestion des comptes utilisateurs (CRUD)")
 public class AppUserController {
 
     private final AppUserService appUserService;
