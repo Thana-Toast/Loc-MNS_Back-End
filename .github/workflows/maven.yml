@@ -19,10 +19,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run unit tests with Maven
+      - name: Update DB_HOST in application.properties, to database service name in docker-compose (postgres)
+        run: sed -i 's/ ${DB_HOST} /postgres/' src/main/resources/application.properties
+
+      - name: Build and Run unit tests with Maven
         run: |
           chmod +x mvnw
-          ./mvnw clean test
+          ./mvnw clean package #
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -56,6 +59,16 @@ jobs:
 
       - name: Push Docker image
         run: docker push thanat04st/loc-mns-back
+
+      - name: Extract version from pom.xml
+        id: extract_version
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Tag image with version
+        run: docker tag thanat04st/loc-mns-back thanat04st/loc-mns-back:${{ env.VERSION }}
+
+      - name: Push tag to Docker Hub
+        run: docker push thanat04st/loc-mns-back:${{ env.VERSION }}
 
 #on:
 #  push:
