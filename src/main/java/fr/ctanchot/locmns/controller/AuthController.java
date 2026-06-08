@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@Tag(name = "1. Authentification", description = "Endpoints de connexion et d'inscription des utilisateurs")
+@Tag(name = "01. Authentification", description = "Endpoints de connexion et d'inscription des utilisateurs")
 public class AuthController {
 
     private final AppUserService appUserService;
