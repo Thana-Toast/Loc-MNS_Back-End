@@ -20,7 +20,9 @@ jobs:
           cache: maven
 
       - name: Run unit tests with Maven
-        run: ./mvnw clean test
+        run: |
+          chmod +x mvnw
+          ./mvnw clean test
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
