@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/ticket")
-@Tag(name = "08. Incidents (Tickets)", description = "Signalement des pannes et dysfonctionnements (CRUD & Statut)")
+@Tag(name = "06. Incidents (Tickets)", description = "Signalement des pannes et dysfonctionnements (CRUD & Statut)")
 public class TicketController {
 
     private final TicketService ticketService;

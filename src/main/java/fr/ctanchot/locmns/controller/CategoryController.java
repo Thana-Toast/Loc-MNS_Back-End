@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/category")
-@Tag(name = "05. Catégories", description = "Gestion des catégories d'équipements (CRUD)")
+@Tag(name = "07. Catégories", description = "Gestion des catégories d'équipements (CRUD)")
 public class CategoryController {
 
     private final CategoryService categoryService;
