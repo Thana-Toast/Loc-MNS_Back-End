@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/model")
-@Tag(name = "08. Modèles", description = "Gestion des modèles d'équipements (CRUD)")
+@Tag(name = "04. Modèles", description = "Gestion des modèles d'équipements (CRUD)")
 public class ModelController {
 
     private final ModelService modelService;

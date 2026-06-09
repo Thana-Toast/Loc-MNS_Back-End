@@ -18,7 +18,7 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping("/file")
 @RequiredArgsConstructor
-@Tag(name = "10. Fichiers", description = "Endpoints d'upload de fichiers (images, documents) - Réservé aux Administrateurs")
+@Tag(name = "11. Fichiers", description = "Endpoints d'upload de fichiers (images, documents) - Réservé aux Administrateurs")
 public class FileUploadController {
 
     private final FileStorageService fileStorageService;
