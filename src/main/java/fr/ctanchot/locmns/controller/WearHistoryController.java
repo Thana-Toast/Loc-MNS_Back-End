@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/wear-history")
-@Tag(name = "9d. Historique - Usure", description = "Suivi de l'usure, dégradation et état physique du matériel")
+@Tag(name = "10c. Historique - Usure", description = "Suivi de l'usure, dégradation et état physique du matériel")
 public class WearHistoryController {
 
     private final WearHistoryService wearHistoryService;

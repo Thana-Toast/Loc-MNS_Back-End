@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/equipment")
-@Tag(name = "3. Équipements", description = "Gestion du matériel informatique physique (CRUD)")
+@Tag(name = "03. Équipements", description = "Gestion du matériel informatique physique (CRUD)")
 public class EquipmentController {
 
     private final EquipmentService equipmentService;

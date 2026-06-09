@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/availability-history")
-@Tag(name = "9b. Historique - Disponibilités", description = "Suivi de l'état de disponibilité du matériel (Disponible, Loué, En réparation, Hors service)")
+@Tag(name = "10a. Historique - Disponibilités", description = "Suivi de l'état de disponibilité du matériel (Disponible, Loué, En réparation, Hors service)")
 public class AvailabilityHistoryController {
 
     private final AvailabilityHistoryService availabilityHistoryService;
