@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/document")
-@Tag(name = "9a. Documents", description = "Gestion des notices techniques, guides et supports vidéos (CRUD)")
+@Tag(name = "09. Documents", description = "Gestion des notices techniques, guides et supports vidéos (CRUD)")
 public class DocumentController {
 
     private final DocumentService documentService;

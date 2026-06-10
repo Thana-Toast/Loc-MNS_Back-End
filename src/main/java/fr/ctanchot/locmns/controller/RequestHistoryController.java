@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/request-history")
-@Tag(name = "9c. Historique - Demandes", description = "Suivi historique des demandes de prêt (création, modification, validation)")
+@Tag(name = "10b. Historique - Demandes", description = "Suivi historique des demandes de prêt (création, modification, validation)")
 public class RequestHistoryController {
 
     private final RequestHistoryService requestHistoryService;

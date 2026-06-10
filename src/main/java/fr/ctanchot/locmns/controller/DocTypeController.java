@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/doc-type")
-@Tag(name = "9. Types de Documents", description = "Gestion des catégories ou types de fichiers (CRUD)")
+@Tag(name = "09a. Types de Documents", description = "Gestion des catégories ou types de fichiers (CRUD)")
 public class DocTypeController {
 
     private final DocTypeService docTypeService;

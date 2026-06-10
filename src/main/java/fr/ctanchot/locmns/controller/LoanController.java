@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping("/loan")
-@Tag(name = "5. Prêts", description = "Gestion des prêts d'équipements (CRUD & Disponibilité)")
+@Tag(name = "07. Prêts", description = "Gestion des prêts d'équipements (CRUD & Disponibilité)")
 public class LoanController {
 
     private final LoanService loanService;
