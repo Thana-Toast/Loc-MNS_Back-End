@@ -1,8 +1,10 @@
 package fr.ctanchot.locmns.service;
 
 import fr.ctanchot.locmns.dao.AppUserDao;
+import fr.ctanchot.locmns.dao.RoleDao;
 import fr.ctanchot.locmns.dto.AppUserDTO;
 import fr.ctanchot.locmns.model.AppUser;
+import fr.ctanchot.locmns.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,13 @@ import java.util.Optional;
 public class AppUserService {
 
     private final AppUserDao appUserDao;
+    private final RoleDao roleDao;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AppUserService(AppUserDao appUserDao, PasswordEncoder passwordEncoder) {
+    public AppUserService(AppUserDao appUserDao, RoleDao roleDao, PasswordEncoder passwordEncoder) {
         this.appUserDao = appUserDao;
+        this.roleDao = roleDao;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -38,6 +42,10 @@ public class AppUserService {
             if (user.getPassword() != null && !user.getPassword().isBlank()) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
+            if (user.getRoles() == null) {
+                user.setRoles(new java.util.ArrayList<>());
+            }
+            roleDao.findByLabel("ROLE_USER").ifPresent(role -> user.getRoles().add(role));
         }
         return appUserDao.save(user);
     }
