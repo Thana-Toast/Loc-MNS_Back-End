@@ -51,3 +51,13 @@ INSERT INTO loan (id_loan, start_date, end_date, id_loan_request) VALUES
 -- 9. TICKETS
 INSERT INTO ticket (id_ticket, date, label, description, id_equipment, id_appuser) VALUES
 (1, NOW(), 'Ecran fissuré', 'L''écran est arrivé avec une fissure dans le coin supérieur gauche', 3, 3);
+
+-- Réalignement des séquences d'ID pour PostgreSQL (évite l'erreur de clé dupliquée après les insertions manuelles de seed data)
+SELECT setval('app_user_id_appuser_seq', (SELECT COALESCE(MAX(id_appuser), 1) FROM app_user));
+SELECT setval('role_id_role_seq', (SELECT COALESCE(MAX(id_role), 1) FROM role));
+SELECT setval('category_id_category_seq', (SELECT COALESCE(MAX(id_category), 1) FROM category));
+SELECT setval('model_id_model_seq', (SELECT COALESCE(MAX(id_model), 1) FROM model));
+SELECT setval('equipment_id_equipment_seq', (SELECT COALESCE(MAX(id_equipment), 1) FROM equipment));
+SELECT setval('loan_request_id_loan_request_seq', (SELECT COALESCE(MAX(id_loan_request), 1) FROM loan_request));
+SELECT setval('loan_id_loan_seq', (SELECT COALESCE(MAX(id_loan), 1) FROM loan));
+SELECT setval('ticket_id_ticket_seq', (SELECT COALESCE(MAX(id_ticket), 1) FROM ticket));
