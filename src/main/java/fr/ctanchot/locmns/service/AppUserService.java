@@ -36,6 +36,13 @@ public class AppUserService {
     }
 
     public AppUser save(AppUser user) {
+        if (user.getLastName() != null) {
+            user.setLastName(user.getLastName().trim().toUpperCase());
+        }
+        if (user.getFirstName() != null) {
+            user.setFirstName(formatFirstName(user.getFirstName()));
+        }
+
         if (user.getId() == null) {
             user.setCreationDate(LocalDateTime.now());
             user.setIsAnonymized(false);
@@ -59,8 +66,12 @@ public class AppUserService {
         if (existingUser.isPresent()) {
             AppUser userToUpdate = existingUser.get();
             
-            userToUpdate.setLastName(userUpdate.getLastName());
-            userToUpdate.setFirstName(userUpdate.getFirstName());
+            if (userUpdate.getLastName() != null) {
+                userToUpdate.setLastName(userUpdate.getLastName().trim().toUpperCase());
+            }
+            if (userUpdate.getFirstName() != null) {
+                userToUpdate.setFirstName(formatFirstName(userUpdate.getFirstName()));
+            }
             userToUpdate.setEmail(userUpdate.getEmail());
             
             if (userUpdate.getPassword() != null && !userUpdate.getPassword().isBlank()) {
@@ -82,5 +93,26 @@ public class AppUserService {
             return appUserDao.save(userToUpdate);
         }
         return null;
+    }
+
+    private String formatFirstName(String firstName) {
+        if (firstName == null || firstName.isBlank()) {
+            return firstName;
+        }
+        String cleaned = firstName.trim().toLowerCase();
+        StringBuilder formatted = new StringBuilder();
+        boolean capitalizeNext = true;
+        for (char c : cleaned.toCharArray()) {
+            if (Character.isSpaceChar(c) || c == '-') {
+                capitalizeNext = true;
+                formatted.append(c);
+            } else if (capitalizeNext) {
+                formatted.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+            } else {
+                formatted.append(c);
+            }
+        }
+        return formatted.toString();
     }
 }
