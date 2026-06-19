@@ -42,4 +42,10 @@ public class Equipment {
     @OneToMany(mappedBy = "equipment")
     private List<Document> documents = new ArrayList<>();
 
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AvailabilityHistory> availabilityHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<WearHistory> wearHistories = new ArrayList<>();
+
 }

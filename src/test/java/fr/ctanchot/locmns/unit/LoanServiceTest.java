@@ -1,6 +1,9 @@
 package fr.ctanchot.locmns.unit;
 
+import fr.ctanchot.locmns.dao.AppUserDao;
 import fr.ctanchot.locmns.dao.LoanDao;
+import fr.ctanchot.locmns.dao.LoanRequestDao;
+import fr.ctanchot.locmns.dao.RequestHistoryDao;
 import fr.ctanchot.locmns.model.Equipment;
 import fr.ctanchot.locmns.model.Loan;
 import fr.ctanchot.locmns.model.LoanRequest;
@@ -13,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +27,15 @@ public class LoanServiceTest {
 
     @Mock
     private LoanDao loanDao;
+
+    @Mock
+    private LoanRequestDao loanRequestDao;
+
+    @Mock
+    private RequestHistoryDao requestHistoryDao;
+
+    @Mock
+    private AppUserDao appUserDao;
 
     @InjectMocks
     private LoanService loanService;
@@ -49,6 +62,8 @@ public class LoanServiceTest {
 
     @Test
     void save_ShouldSucceed_WhenEquipmentIsAvailable() {
+        when(loanRequestDao.findById(4L)).thenReturn(Optional.of(loanRequest));
+
         when(loanDao.existsOverlappingLoan(
                 eq(10L),
                 eq(1L),
@@ -62,10 +77,13 @@ public class LoanServiceTest {
 
         assertNotNull(result);
         verify(loanDao, times(1)).save(loan);
+        verify(requestHistoryDao, times(1)).save(any());
     }
 
     @Test
     void save_ShouldThrowException_WhenEquipmentIsNotAvailable() {
+        when(loanRequestDao.findById(4L)).thenReturn(Optional.of(loanRequest));
+
         when(loanDao.existsOverlappingLoan(
                 eq(10L),
                 eq(1L),

@@ -44,7 +44,7 @@ INSERT INTO app_user (id_appuser, last_name, first_name, email, password, creati
 (5,'IOMMI','Tony','tony.i@gmail.com','$2a$10$fh3NJAc286nAUmIagXYOTubaxkbDPILtyWEXEXPN5giaVNcluKrzO',NOW(),false);
 
 -- 4. ATTRIBUTION DES ROLES
-INSERT INTO user_role (id_appuser, id_role) VALUES (1, 1), (2, 2), (3, 3), (4, 3),(5,3);
+INSERT INTO user_role (id_appuser, id_role) VALUES (1, 1), (2, 2),(2,3), (3, 3), (4, 3),(5,3);
 
 -- 5. MODELES D'EQUIPEMENT
 INSERT INTO model (id_model, label, brand, description, technical_specs, image_path, id_category) VALUES
@@ -174,12 +174,12 @@ INSERT INTO equipment (id_equipment, serial_number, id_model) VALUES
 (69, 'SN-OCULUS-RIFT-001', 26);
 
 -- 7. DEMANDES DE PRET
-INSERT INTO loan_request (id_loan_request, date, description, id_appuser, id_equipment) VALUES
-(1, '2026-06-01 09:00:00', 'Demande de prêt d''ordinateur Dell Pro pour développement de code', 3, 1),
-(2, '2026-06-02 10:15:00', 'Besoin d''un MacBook Pro performant pour les cours de développement mobile iOS', 2, 13),
-(3, '2026-06-03 11:30:00', 'iPad Pro requis pour effectuer des maquettes graphiques et du prototypage UI', 4, 23),
-(4, '2026-06-04 14:00:00', 'Casque VR Meta Quest 3 pour une démonstration de réalité mixte lors d''un cours', 2, 68),
-(5, '2026-06-05 16:45:00', 'Demande d''un second écran pour travailler en double affichage', 3, 52);
+INSERT INTO loan_request (id_loan_request, date, description, id_appuser, id_equipment, start_date, end_date) VALUES
+(1, '2026-06-01 09:00:00', 'Demande de prêt d''ordinateur Dell Pro pour développement de code', 3, 1, '2026-06-02', '2026-06-16'),
+(2, '2026-06-02 10:15:00', 'Besoin d''un MacBook Pro performant pour les cours de développement mobile iOS', 2, 13, '2026-06-03', '2026-06-30'),
+(3, '2026-06-03 11:30:00', 'iPad Pro requis pour effectuer des maquettes graphiques et du prototypage UI', 4, 23, '2026-06-25', '2026-07-09'),
+(4, '2026-06-04 14:00:00', 'Casque VR Meta Quest 3 pour une démonstration de réalité mixte lors d''un cours', 2, 68, '2026-06-22', '2026-07-06'),
+(5, '2026-06-05 16:45:00', 'Demande d''un second écran pour travailler en double affichage', 3, 52, '2026-06-06', '2026-06-20');
 
 -- 8. PRETS
 INSERT INTO loan (id_loan, start_date, end_date, actual_return_date, id_loan_request) VALUES
@@ -202,6 +202,32 @@ INSERT INTO role_category_access (id_role, id_category) VALUES
 -- ROLE_INSTRUCTOR (id_role = 2) a accès aux catégories privées
 (2, 4), (2, 5), (2, 16), (2, 17), (2, 18), (2, 19);
 
+-- Initialisation des historiques de disponibilité pour tous les équipements insérés (AVAILABLE sauf équipements 3 et 10 en maintenance)
+INSERT INTO availability_history (start_date, status, id_equipment)
+SELECT NOW(), 
+       CASE WHEN id_equipment IN (3, 10) THEN 'IN_MAINTENANCE' ELSE 'AVAILABLE' END,
+       id_equipment 
+FROM equipment;
+
+-- Initialisation des historiques d'usure pour tous les équipements insérés (NEW par défaut)
+INSERT INTO wear_history (wear_change_date, status, id_equipment)
+SELECT NOW(), 'NEW', id_equipment 
+FROM equipment;
+
+-- Initialisation de l'historique des demandes de prêt
+INSERT INTO request_history (status_change_date, status, id_loan_request) VALUES
+('2026-06-02 09:00:00', 'VALIDATED', 1),
+('2026-06-03 10:15:00', 'VALIDATED', 2),
+('2026-06-03 11:30:00', 'PENDING', 3),
+('2026-06-04 14:00:00', 'PENDING', 4),
+('2026-06-06 16:45:00', 'VALIDATED', 5);
+
+-- Initialisation de l'historique des tickets
+INSERT INTO ticket_history (state_change_date, status, id_ticket) VALUES
+('2026-06-10 11:00:00', 'PENDING', 1),
+('2026-06-12 15:30:00', 'PENDING', 2),
+('2026-06-15 09:45:00', 'PENDING', 3);
+
 -- Réalignement des séquences d'ID pour PostgreSQL (évite l'erreur de clé dupliquée après les insertions manuelles de seed data)
 SELECT setval('app_user_id_appuser_seq', (SELECT COALESCE(MAX(id_appuser), 1) FROM app_user));
 SELECT setval('role_id_role_seq', (SELECT COALESCE(MAX(id_role), 1) FROM role));
@@ -211,3 +237,7 @@ SELECT setval('equipment_id_equipment_seq', (SELECT COALESCE(MAX(id_equipment), 
 SELECT setval('loan_request_id_loan_request_seq', (SELECT COALESCE(MAX(id_loan_request), 1) FROM loan_request));
 SELECT setval('loan_id_loan_seq', (SELECT COALESCE(MAX(id_loan), 1) FROM loan));
 SELECT setval('ticket_id_ticket_seq', (SELECT COALESCE(MAX(id_ticket), 1) FROM ticket));
+SELECT setval('availability_history_id_availability_history_seq', (SELECT COALESCE(MAX(id_availability_history), 1) FROM availability_history));
+SELECT setval('wear_history_id_wear_history_seq', (SELECT COALESCE(MAX(id_wear_history), 1) FROM wear_history));
+SELECT setval('request_history_id_request_history_seq', (SELECT COALESCE(MAX(id_request_history), 1) FROM request_history));
+SELECT setval('ticket_history_id_ticket_history_seq', (SELECT COALESCE(MAX(id_ticket_history), 1) FROM ticket_history));

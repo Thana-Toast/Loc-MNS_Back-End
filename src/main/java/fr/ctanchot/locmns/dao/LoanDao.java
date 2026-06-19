@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface LoanDao extends JpaRepository<Loan, Long> {
@@ -22,5 +23,11 @@ public interface LoanDao extends JpaRepository<Loan, Long> {
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate
     );
+
+    @Query("SELECT l FROM Loan l WHERE l.loanRequest.appUser.id = :userId")
+    List<Loan> findByAppUserId(@Param("userId") Long userId);
+
+    @Query("SELECT l FROM Loan l WHERE l.loanRequest.equipment.model.id = :modelId AND l.actualReturnDate IS NULL")
+    List<Loan> findActiveLoansByModelId(@Param("modelId") Long modelId);
 }
 

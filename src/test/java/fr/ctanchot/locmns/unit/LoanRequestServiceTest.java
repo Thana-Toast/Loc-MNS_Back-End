@@ -2,7 +2,9 @@ package fr.ctanchot.locmns.unit;
 
 import fr.ctanchot.locmns.dao.AppUserDao;
 import fr.ctanchot.locmns.dao.EquipmentDao;
+import fr.ctanchot.locmns.dao.LoanDao;
 import fr.ctanchot.locmns.dao.LoanRequestDao;
+import fr.ctanchot.locmns.dao.RequestHistoryDao;
 import fr.ctanchot.locmns.model.*;
 import fr.ctanchot.locmns.service.LoanRequestService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,12 @@ public class LoanRequestServiceTest {
     @Mock
     private EquipmentDao equipmentDao;
 
+    @Mock
+    private RequestHistoryDao requestHistoryDao;
+
+    @Mock
+    private LoanDao loanDao;
+
     @InjectMocks
     private LoanRequestService loanRequestService;
 
@@ -46,6 +55,7 @@ public class LoanRequestServiceTest {
         category = new Category();
         category.setId(1L);
         category.setLabel("Ordinateurs Portables");
+        category.setRolesWithAccess(new ArrayList<>());
 
         model = new Model();
         model.setId(1L);
@@ -64,6 +74,8 @@ public class LoanRequestServiceTest {
         loanRequest.setAppUser(user);
         loanRequest.setEquipment(equipment);
         loanRequest.setDescription("Besoin pro");
+        loanRequest.setStartDate(LocalDate.now());
+        loanRequest.setEndDate(LocalDate.now().plusDays(14));
     }
 
     @Test
@@ -74,17 +86,19 @@ public class LoanRequestServiceTest {
         role.setAuthorizedCategories(List.of(category));
 
         user.setRoles(List.of(role));
+        category.setRolesWithAccess(new ArrayList<>(List.of(role)));
 
         when(appUserDao.findById(user.getId())).thenReturn(Optional.of(user));
         when(equipmentDao.findById(equipment.getId())).thenReturn(Optional.of(equipment));
         when(loanRequestDao.save(any(LoanRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        LoanRequest result = loanRequestService.save(loanRequest);
+        LoanRequest result = loanRequestService.save(loanRequest, null);
 
         assertNotNull(result);
         assertEquals(user, result.getAppUser());
         assertEquals(equipment, result.getEquipment());
         verify(loanRequestDao, times(1)).save(loanRequest);
+        verify(requestHistoryDao, times(1)).save(any(RequestHistory.class));
     }
 
     @Test
@@ -100,11 +114,16 @@ public class LoanRequestServiceTest {
 
         user.setRoles(List.of(role));
 
+        Role adminRole = new Role();
+        adminRole.setId(2L);
+        adminRole.setLabel("ROLE_ADMIN");
+        category.setRolesWithAccess(new ArrayList<>(List.of(adminRole)));
+
         when(appUserDao.findById(user.getId())).thenReturn(Optional.of(user));
         when(equipmentDao.findById(equipment.getId())).thenReturn(Optional.of(equipment));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            loanRequestService.save(loanRequest);
+            loanRequestService.save(loanRequest, null);
         });
 
         assertTrue(exception.getMessage().contains("L'utilisateur n'a pas les droits pour louer des équipements de la catégorie"));
@@ -119,7 +138,7 @@ public class LoanRequestServiceTest {
         when(equipmentDao.findById(equipment.getId())).thenReturn(Optional.of(equipment));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            loanRequestService.save(loanRequest);
+            loanRequestService.save(loanRequest, null);
         });
 
         assertEquals("L'utilisateur n'a aucun rôle associé.", exception.getMessage());

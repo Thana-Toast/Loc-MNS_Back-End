@@ -1,14 +1,20 @@
 package fr.ctanchot.locmns.service;
 
+import fr.ctanchot.locmns.dao.AppUserDao;
 import fr.ctanchot.locmns.dao.LoanDao;
 import fr.ctanchot.locmns.dao.LoanRequestDao;
+import fr.ctanchot.locmns.dao.RequestHistoryDao;
 import fr.ctanchot.locmns.dto.LoanDTO;
-import fr.ctanchot.locmns.model.Loan;
-import fr.ctanchot.locmns.model.LoanRequest;
+import fr.ctanchot.locmns.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,24 +23,88 @@ public class LoanService {
 
     private final LoanDao loanDao;
     private final LoanRequestDao loanRequestDao;
+    private final RequestHistoryDao requestHistoryDao;
+    private final AppUserDao appUserDao;
 
     @Autowired
-    public LoanService(LoanDao loanDao, LoanRequestDao loanRequestDao) {
+    public LoanService(LoanDao loanDao, LoanRequestDao loanRequestDao, RequestHistoryDao requestHistoryDao, AppUserDao appUserDao) {
         this.loanDao = loanDao;
         this.loanRequestDao = loanRequestDao;
+        this.requestHistoryDao = requestHistoryDao;
+        this.appUserDao = appUserDao;
+    }
+
+    private Optional<AppUser> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails) {
+            String email = ((UserDetails) principal).getUsername();
+            return appUserDao.findByEmail(email);
+        }
+        return Optional.empty();
     }
 
     public List<Loan> findAll() {
-        return loanDao.findAll();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return loanDao.findAll();
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return loanDao.findAll();
+        }
+
+        return getCurrentUser()
+                .map(user -> loanDao.findByAppUserId(user.getId()))
+                .orElse(List.of());
     }
 
     public Optional<Loan> findById(Long id) {
-        return loanDao.findById(id);
+        Optional<Loan> loanOpt = loanDao.findById(id);
+        if (loanOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return loanOpt;
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return loanOpt;
+        }
+
+        Optional<AppUser> currentUserOpt = getCurrentUser();
+        if (currentUserOpt.isPresent() && loanOpt.get().getLoanRequest().getAppUser().getId().equals(currentUserOpt.get().getId())) {
+            return loanOpt;
+        }
+
+        return Optional.empty();
     }
 
+    @Transactional
     public Loan save(Loan loan) {
         if (isEquipmentAvailable(loan)) {
-            return loanDao.save(loan);
+            Loan savedLoan = loanDao.save(loan);
+
+            // Add VALIDATED status in history for the associated LoanRequest
+            LoanRequest request = loanRequestDao.findById(loan.getLoanRequest().getId())
+                    .orElseThrow(() -> new RuntimeException("Demande de prêt d'origine introuvable."));
+
+            RequestHistory history = new RequestHistory();
+            history.setLoanRequest(request);
+            history.setStatusChangeDate(LocalDateTime.now());
+            history.setStatus(RequestStatus.VALIDATED);
+            requestHistoryDao.save(history);
+
+            return savedLoan;
         } else {
             throw new RuntimeException("L'équipement n'est pas disponible pour cette période (conflit de dates).");
         }
@@ -44,6 +114,7 @@ public class LoanService {
         loanDao.deleteById(id);
     }
 
+    @Transactional
     public Loan update(Long id, LoanDTO loanUpdate) {
         Optional<Loan> existingLoanOpt = loanDao.findById(id);
         if (existingLoanOpt.isPresent()) {
@@ -69,11 +140,19 @@ public class LoanService {
 
     private boolean isEquipmentAvailable(Loan newLoan) {
         LoanRequest request = newLoan.getLoanRequest();
-        if (request == null || request.getEquipment() == null) {
+        if (request == null) {
             return true;
         }
 
-        Long equipmentId = request.getEquipment().getId();
+        // Si le request ne contient pas encore d'équipement, on le charge
+        LoanRequest fullRequest = loanRequestDao.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Demande de prêt d'origine introuvable."));
+
+        if (fullRequest.getEquipment() == null) {
+            return true;
+        }
+
+        Long equipmentId = fullRequest.getEquipment().getId();
         LocalDate start = newLoan.getStartDate();
         LocalDate end = newLoan.getEndDate();
 
@@ -83,5 +162,9 @@ public class LoanService {
                 start,
                 end
         );
+    }
+
+    public List<Loan> findActiveLoansByModelId(Long modelId) {
+        return loanDao.findActiveLoansByModelId(modelId);
     }
 }
