@@ -62,7 +62,12 @@ public class AuthController {
                     .map(Role::getLabel)
                     .collect(Collectors.joining(","));
 
-            String jwt = jwtService.generateToken(appUserDetails.getUser().getEmail(), roles);
+            String jwt = jwtService.generateToken(
+                    appUserDetails.getUser().getEmail(),
+                    roles,
+                    appUserDetails.getUser().getFirstName(),
+                    appUserDetails.getUser().getLastName()
+            );
 
             return new ResponseEntity<>(jwt, HttpStatus.OK);
         } catch (AuthenticationException e) {
