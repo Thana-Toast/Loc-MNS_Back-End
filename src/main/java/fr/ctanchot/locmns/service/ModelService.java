@@ -6,10 +6,14 @@ import fr.ctanchot.locmns.dto.ModelDTO;
 import fr.ctanchot.locmns.model.Category;
 import fr.ctanchot.locmns.model.Model;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ModelService {
@@ -24,11 +28,55 @@ public class ModelService {
     }
 
     public List<Model> findAll() {
-        return modelDao.findAll();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return modelDao.findAll();
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return modelDao.findAll();
+        }
+
+        List<String> userRoles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return modelDao.findModelsByAuthorizedCategories(userRoles);
     }
 
     public Optional<Model> findById(Long id) {
-        return modelDao.findById(id);
+        Optional<Model> optionalModel = modelDao.findById(id);
+        if (optionalModel.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Model model = optionalModel.get();
+        Category category = model.getCategory();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || category == null) {
+            return Optional.of(model);
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return Optional.of(model);
+        }
+
+        List<String> userRoles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        boolean isAuthorized = category.getRolesWithAccess().stream()
+                .anyMatch(role -> userRoles.contains(role.getLabel()));
+
+        if (isAuthorized) {
+            return Optional.of(model);
+        }
+
+        return Optional.empty();
     }
 
     public Model save(Model model) {
