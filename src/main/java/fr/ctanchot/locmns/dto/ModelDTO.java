@@ -41,5 +41,8 @@ public class ModelDTO {
 
     @Schema(description = "Libellé de la catégorie associée", example = "Ordinateurs Portables", accessMode = Schema.AccessMode.READ_ONLY)
     private String categoryLabel;
+
+    @Schema(description = "Nombre d'équipements de ce modèle", example = "3", accessMode = Schema.AccessMode.READ_ONLY)
+    private Integer equipmentsCount;
 }
 

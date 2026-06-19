@@ -23,6 +23,12 @@ public class ModelMapper {
             dto.setCategoryLabel(entity.getCategory().getLabel());
         }
 
+        if (entity.getEquipments() != null) {
+            dto.setEquipmentsCount(entity.getEquipments().size());
+        } else {
+            dto.setEquipmentsCount(0);
+        }
+
         return dto;
     }
 

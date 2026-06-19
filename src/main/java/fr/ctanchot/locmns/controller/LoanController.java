@@ -95,5 +95,13 @@ public class LoanController {
         loanService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/model/{modelId}/active")
+    @Operation(summary = "Récupérer les prêts actifs pour un modèle", description = "Retourne la liste des prêts actifs (non encore retournés) pour un modèle d'équipement donné.")
+    public List<LoanDTO> getActiveLoansByModel(@PathVariable Long modelId) {
+        return loanService.findActiveLoansByModelId(modelId).stream()
+                .map(loanMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }
 

@@ -61,8 +61,22 @@ public class LoanRequestController {
             LoanRequestDTO loanRequestDto
     ) {
         LoanRequest requestToInsert = loanRequestMapper.toEntity(loanRequestDto);
-        LoanRequest savedRequest = loanRequestService.save(requestToInsert);
+        LoanRequest savedRequest = loanRequestService.save(requestToInsert, loanRequestDto.getModelId());
         return new ResponseEntity<>(loanRequestMapper.toDto(savedRequest), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/{id}/reject")
+    @Operation(summary = "Refuser une demande de prêt", description = "Marque la demande d'emprunt comme refusée (REJECTED) dans son historique.")
+    @ApiResponse(responseCode = "200", description = "Demande refusée avec succès")
+    @ApiResponse(responseCode = "404", description = "Demande introuvable")
+    public ResponseEntity<Void> reject(@PathVariable Long id, @RequestBody(required = false) RejectionRequest body) {
+        Optional<LoanRequest> loanRequest = loanRequestService.findById(id);
+        if (loanRequest.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        String reason = body != null ? body.getReason() : null;
+        loanRequestService.reject(id, reason);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -93,6 +107,12 @@ public class LoanRequestController {
         }
         loanRequestService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public static class RejectionRequest {
+        private String reason;
+        public String getReason() { return reason; }
+        public void setReason(String reason) { this.reason = reason; }
     }
 }
 
