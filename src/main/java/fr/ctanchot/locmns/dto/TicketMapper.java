@@ -20,6 +20,10 @@ public class TicketMapper {
         if (entity.getEquipment() != null) {
             dto.setEquipmentId(entity.getEquipment().getId());
             dto.setEquipmentSerialNumber(entity.getEquipment().getSerialNumber());
+            if (entity.getEquipment().getModel() != null) {
+                dto.setEquipmentModelBrand(entity.getEquipment().getModel().getBrand());
+                dto.setEquipmentModelLabel(entity.getEquipment().getModel().getLabel());
+            }
         }
 
         if (entity.getAppUser() != null) {

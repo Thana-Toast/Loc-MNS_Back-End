@@ -7,6 +7,9 @@ import fr.ctanchot.locmns.dao.TicketHistoryDao;
 import fr.ctanchot.locmns.dto.TicketDTO;
 import fr.ctanchot.locmns.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +33,59 @@ public class TicketService {
         this.equipmentDao = equipmentDao;
     }
 
+    private Optional<AppUser> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails) {
+            String email = ((UserDetails) principal).getUsername();
+            return appUserDao.findByEmail(email);
+        }
+        return Optional.empty();
+    }
+
     public List<Ticket> findAll() {
-        return ticketDao.findAll();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return ticketDao.findAll();
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return ticketDao.findAll();
+        }
+
+        return getCurrentUser()
+                .map(user -> ticketDao.findByAppUserId(user.getId()))
+                .orElse(List.of());
     }
 
     public Optional<Ticket> findById(Long id) {
-        return ticketDao.findById(id);
+        Optional<Ticket> ticketOpt = ticketDao.findById(id);
+        if (ticketOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return ticketOpt;
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return ticketOpt;
+        }
+
+        Optional<AppUser> currentUserOpt = getCurrentUser();
+        if (currentUserOpt.isPresent() && ticketOpt.get().getAppUser().getId().equals(currentUserOpt.get().getId())) {
+            return ticketOpt;
+        }
+
+        return Optional.empty();
     }
 
     @Transactional
@@ -44,6 +94,16 @@ public class TicketService {
             ticket.setDate(LocalDateTime.now());
         }
         
+        if (ticket.getAppUser() == null || ticket.getAppUser().getId() == null) {
+            AppUser user = getCurrentUser()
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non authentifié ou introuvable."));
+            ticket.setAppUser(user);
+        } else {
+            AppUser user = appUserDao.findById(ticket.getAppUser().getId())
+                    .orElseThrow(() -> new RuntimeException("Utilisateur introuvable."));
+            ticket.setAppUser(user);
+        }
+
         Ticket savedTicket = ticketDao.save(ticket);
 
         if (ticket.getId() == null || ticketHistoryDao.findAll().stream().noneMatch(h -> h.getTicket().getId().equals(savedTicket.getId()))) {

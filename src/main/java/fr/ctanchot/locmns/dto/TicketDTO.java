@@ -37,7 +37,12 @@ public class TicketDTO {
     @Schema(description = "Numéro de série de l'équipement défectueux", example = "SN-DELL-5420-12345", accessMode = Schema.AccessMode.READ_ONLY)
     private String equipmentSerialNumber;
 
-    @NotNull(message = "L'utilisateur est obligatoire")
+    @Schema(description = "Marque de l'équipement défectueux", example = "Dell", accessMode = Schema.AccessMode.READ_ONLY)
+    private String equipmentModelBrand;
+
+    @Schema(description = "Libellé du modèle de l'équipement défectueux", example = "Dell Pro 16", accessMode = Schema.AccessMode.READ_ONLY)
+    private String equipmentModelLabel;
+
     @Schema(description = "Identifiant de l'utilisateur ayant signalé l'incident", example = "2")
     private Long appUserId;
 
