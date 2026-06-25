@@ -189,9 +189,12 @@ INSERT INTO loan (id_loan, start_date, end_date, actual_return_date, id_loan_req
 
 -- 9. TICKETS
 INSERT INTO ticket (id_ticket, date, label, description, id_equipment, id_appuser) VALUES
-(1, '2026-06-10 11:00:00', 'Touche de clavier bloquée', 'La touche de lettre E du Dell Pro 16 est bloquée et ne répond plus de façon fluide.', 1, 3),
-(2, '2026-06-12 15:30:00', 'Surchauffe anormale', 'Le MacBook Pro chauffe énormément après 10 minutes d''utilisation et fait un bruit de ventilation saccadé.', 13, 2),
-(3, '2026-06-15 09:45:00', 'Fissure écran', 'L''iPad Pro présente une légère fissure sur la vitre de l''écran dans la partie inférieure gauche.', 23, 4);
+(1, '2026-06-10 11:00:00', '[Panne]', 'La touche de lettre E du Dell Pro 16 est bloquée et ne répond plus de façon fluide.', 1, 3),
+(2, '2026-06-12 15:30:00', '[Panne]', 'Le MacBook Pro chauffe énormément après 10 minutes d''utilisation et fait un bruit de ventilation saccadé.', 13, 2),
+(3, '2026-06-15 09:45:00', '[Panne]', 'L''iPad Pro présente une légère fissure sur la vitre de l''écran dans la partie inférieure gauche.', 23, 4),
+(4, '2026-06-16 10:00:00', '[Prolongation]', '[Date de fin souhaitée : 15/07/2026]
+
+Je souhaite prolonger la période d''emprunt de cet écran pour terminer mon projet de conception.', 52, 3);
 
 -- 10. ACCÈS AUX CATEGORIES PAR ROLE (RESTRICTIONS CIBLÉES UNIQUEMENT)
 -- Par défaut, toutes les catégories sans association sont PUBLIQUES.
@@ -226,7 +229,8 @@ INSERT INTO request_history (status_change_date, status, id_loan_request) VALUES
 INSERT INTO ticket_history (state_change_date, status, id_ticket) VALUES
 ('2026-06-10 11:00:00', 'PENDING', 1),
 ('2026-06-12 15:30:00', 'PENDING', 2),
-('2026-06-15 09:45:00', 'PENDING', 3);
+('2026-06-15 09:45:00', 'PENDING', 3),
+('2026-06-16 10:00:00', 'PENDING', 4);
 
 -- Réalignement des séquences d'ID pour PostgreSQL (évite l'erreur de clé dupliquée après les insertions manuelles de seed data)
 SELECT setval('app_user_id_appuser_seq', (SELECT COALESCE(MAX(id_appuser), 1) FROM app_user));
