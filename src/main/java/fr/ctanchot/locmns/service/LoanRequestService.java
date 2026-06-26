@@ -51,7 +51,9 @@ public class LoanRequestService {
         return Optional.empty();
     }
 
+    @Transactional
     public List<LoanRequest> findAll() {
+        resolveOverdueConflicts();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return loanRequestDao.findAll();
@@ -123,11 +125,22 @@ public class LoanRequestService {
             // Find the first candidate that doesn't have an overlapping loan.
             Equipment selectedEquipment = null;
             for (Equipment candidate : candidates) {
+                // Check if candidate has any active overdue loans
+                boolean hasOverdue = loanDao.existsActiveOverdueLoan(
+                        candidate.getId(),
+                        null,
+                        LocalDate.now()
+                );
+                if (hasOverdue) {
+                    continue;
+                }
+
+                // Check overlap with 1-day buffer margin
                 boolean hasOverlap = loanDao.existsOverlappingLoan(
                         candidate.getId(),
                         null,
-                        loanRequest.getStartDate(),
-                        loanRequest.getEndDate()
+                        loanRequest.getStartDate().minusDays(1),
+                        loanRequest.getEndDate().plusDays(1)
                 );
                 if (!hasOverlap) {
                     selectedEquipment = candidate;
@@ -253,6 +266,69 @@ public class LoanRequestService {
         }
         if (endDate.isBefore(startDate)) {
             throw new RuntimeException("La date de fin ne peut pas être antérieure à la date de début.");
+        }
+    }
+
+    @Transactional
+    public void resolveOverdueConflicts() {
+        LocalDate today = LocalDate.now();
+        List<Loan> overdueLoans = loanDao.findOverdueLoans(today);
+        
+        for (Loan l1 : overdueLoans) {
+            Equipment eq = l1.getLoanRequest().getEquipment();
+            List<Loan> conflictingLoans = loanDao.findConflictingLoans(eq.getId(), today, l1.getId());
+            
+            for (Loan l2 : conflictingLoans) {
+                // Tenter de réattribuer l2 à un autre exemplaire du même modèle
+                Long modelId = eq.getModel().getId();
+                List<Equipment> candidates = equipmentDao.findAvailableEquipmentsByModel(modelId);
+                Equipment replacement = null;
+                
+                for (Equipment candidate : candidates) {
+                    if (candidate.getId().equals(eq.getId())) {
+                        continue;
+                    }
+                    
+                    // Vérifier si le candidat a un prêt en retard
+                    boolean hasOverdue = loanDao.existsActiveOverdueLoan(candidate.getId(), null, today);
+                    if (hasOverdue) {
+                        continue;
+                    }
+                    
+                    // Vérifier si le candidat a un prêt chevauchant sur la plage de l2 (+ 1 jour de maintenance)
+                    boolean hasOverlap = loanDao.existsOverlappingLoan(
+                            candidate.getId(),
+                            l2.getId(),
+                            l2.getStartDate().minusDays(1),
+                            l2.getEndDate().plusDays(1)
+                    );
+                    if (!hasOverlap) {
+                        replacement = candidate;
+                        break;
+                    }
+                }
+                
+                LoanRequest req2 = l2.getLoanRequest();
+                if (replacement != null) {
+                    // Réattribuer l2
+                    req2.setEquipment(replacement);
+                    loanRequestDao.save(req2);
+                } else {
+                    // Plus aucun exemplaire disponible -> Annulation automatique de l2
+                    req2.setRejectionReason("Annulation automatique : le matériel précédent n'a pas été restitué à temps et aucun autre exemplaire n'est disponible.");
+                    loanRequestDao.save(req2);
+                    
+                    // Ajouter le statut REJECTED dans l'historique
+                    RequestHistory history = new RequestHistory();
+                    history.setLoanRequest(req2);
+                    history.setStatusChangeDate(LocalDateTime.now());
+                    history.setStatus(RequestStatus.REJECTED);
+                    requestHistoryDao.save(history);
+                    
+                    // Supprimer le prêt validé
+                    loanDao.delete(l2);
+                }
+            }
         }
     }
 }

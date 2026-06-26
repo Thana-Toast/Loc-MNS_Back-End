@@ -25,13 +25,15 @@ public class LoanService {
     private final LoanRequestDao loanRequestDao;
     private final RequestHistoryDao requestHistoryDao;
     private final AppUserDao appUserDao;
+    private final LoanRequestService loanRequestService;
 
     @Autowired
-    public LoanService(LoanDao loanDao, LoanRequestDao loanRequestDao, RequestHistoryDao requestHistoryDao, AppUserDao appUserDao) {
+    public LoanService(LoanDao loanDao, LoanRequestDao loanRequestDao, RequestHistoryDao requestHistoryDao, AppUserDao appUserDao, LoanRequestService loanRequestService) {
         this.loanDao = loanDao;
         this.loanRequestDao = loanRequestDao;
         this.requestHistoryDao = requestHistoryDao;
         this.appUserDao = appUserDao;
+        this.loanRequestService = loanRequestService;
     }
 
     private Optional<AppUser> getCurrentUser() {
@@ -47,7 +49,9 @@ public class LoanService {
         return Optional.empty();
     }
 
+    @Transactional
     public List<Loan> findAll() {
+        loanRequestService.resolveOverdueConflicts();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return loanDao.findAll();
@@ -156,12 +160,28 @@ public class LoanService {
         LocalDate start = newLoan.getStartDate();
         LocalDate end = newLoan.getEndDate();
 
-        return !loanDao.existsOverlappingLoan(
+        // 1-day buffer check (subtract 1 day from start, add 1 day to end)
+        boolean hasOverlap = loanDao.existsOverlappingLoan(
                 equipmentId,
                 newLoan.getId(),
-                start,
-                end
+                start.minusDays(1),
+                end.plusDays(1)
         );
+        if (hasOverlap) {
+            return false;
+        }
+
+        // Overdue check (prevent new loans on equipment that is currently overdue)
+        boolean hasOverdue = loanDao.existsActiveOverdueLoan(
+                equipmentId,
+                newLoan.getId(),
+                LocalDate.now()
+        );
+        if (hasOverdue) {
+            return false;
+        }
+
+        return true;
     }
 
     public List<Loan> findActiveLoansByModelId(Long modelId) {
