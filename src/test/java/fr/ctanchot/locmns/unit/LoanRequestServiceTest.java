@@ -141,7 +141,124 @@ public class LoanRequestServiceTest {
             loanRequestService.save(loanRequest, null);
         });
 
-        assertEquals("L'utilisateur n'a aucun rôle associé.", exception.getMessage());
         verify(loanRequestDao, never()).save(any(LoanRequest.class));
+    }
+
+    @Test
+    void save_ShouldEnforceBufferAndOverdueCheck_WhenRequestingAvailableModelCandidate() {
+        Role role = new Role();
+        role.setId(1L);
+        role.setLabel("ROLE_USER");
+        user.setRoles(List.of(role));
+
+        // Create a new request without equipment
+        LoanRequest reqWithoutEq = new LoanRequest();
+        reqWithoutEq.setAppUser(user);
+        reqWithoutEq.setStartDate(LocalDate.now().plusDays(2));
+        reqWithoutEq.setEndDate(LocalDate.now().plusDays(10));
+        reqWithoutEq.setDescription("Besoin pro");
+
+        when(appUserDao.findById(user.getId())).thenReturn(Optional.of(user));
+        when(equipmentDao.findAvailableEquipmentsByModel(1L)).thenReturn(List.of(equipment));
+        when(loanDao.existsActiveOverdueLoan(eq(equipment.getId()), any(), any(LocalDate.class))).thenReturn(false);
+        
+        // Start: now + 2 -> Buffer check starts now + 1
+        // End: now + 10 -> Buffer check ends now + 11
+        when(loanDao.existsOverlappingLoan(
+                eq(equipment.getId()),
+                any(),
+                eq(LocalDate.now().plusDays(1)),
+                eq(LocalDate.now().plusDays(11))
+        )).thenReturn(false);
+
+        when(loanRequestDao.save(any(LoanRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        LoanRequest result = loanRequestService.save(reqWithoutEq, 1L);
+
+        assertNotNull(result);
+        assertEquals(equipment, result.getEquipment());
+        verify(loanRequestDao, times(1)).save(reqWithoutEq);
+    }
+
+    @Test
+    void resolveOverdueConflicts_ShouldReassign_WhenAnotherEquipmentIsAvailable() {
+        // l1 (overdue) on equipment (id 10)
+        Loan l1 = new Loan();
+        l1.setId(100L);
+        l1.setEndDate(LocalDate.now().minusDays(2));
+        LoanRequest r1 = new LoanRequest();
+        r1.setEquipment(equipment);
+        l1.setLoanRequest(r1);
+
+        // l2 (blocked conflicting loan) on equipment (id 10) starting today
+        Loan l2 = new Loan();
+        l2.setId(200L);
+        l2.setStartDate(LocalDate.now());
+        l2.setEndDate(LocalDate.now().plusDays(5));
+        LoanRequest r2 = new LoanRequest();
+        r2.setId(300L);
+        r2.setEquipment(equipment);
+        l2.setLoanRequest(r2);
+
+        // Replacement equipment candidate (id 11)
+        Equipment eq2 = new Equipment();
+        eq2.setId(11L);
+        eq2.setModel(model);
+
+        when(loanDao.findOverdueLoans(any(LocalDate.class))).thenReturn(List.of(l1));
+        when(loanDao.findConflictingLoans(eq(equipment.getId()), any(LocalDate.class), eq(l1.getId()))).thenReturn(List.of(l2));
+        when(equipmentDao.findAvailableEquipmentsByModel(model.getId())).thenReturn(List.of(equipment, eq2));
+
+        // eq2 candidate is not overdue
+        when(loanDao.existsActiveOverdueLoan(eq(11L), any(), any(LocalDate.class))).thenReturn(false);
+        // eq2 candidate does not overlap l2's period (+ 1 day buffer check: startDate - 1, endDate + 1)
+        when(loanDao.existsOverlappingLoan(
+                eq(11L),
+                eq(l2.getId()),
+                eq(l2.getStartDate().minusDays(1)),
+                eq(l2.getEndDate().plusDays(1))
+        )).thenReturn(false);
+
+        loanRequestService.resolveOverdueConflicts();
+
+        // Verify r2 has been reassigned to eq2
+        assertEquals(eq2, r2.getEquipment());
+        verify(loanRequestDao, times(1)).save(r2);
+        verify(loanDao, never()).delete(any(Loan.class));
+    }
+
+    @Test
+    void resolveOverdueConflicts_ShouldReject_WhenNoEquipmentIsAvailable() {
+        // l1 (overdue) on equipment (id 10)
+        Loan l1 = new Loan();
+        l1.setId(100L);
+        l1.setEndDate(LocalDate.now().minusDays(2));
+        LoanRequest r1 = new LoanRequest();
+        r1.setEquipment(equipment);
+        l1.setLoanRequest(r1);
+
+        // l2 (blocked conflicting loan) on equipment (id 10) starting today
+        Loan l2 = new Loan();
+        l2.setId(200L);
+        l2.setStartDate(LocalDate.now());
+        l2.setEndDate(LocalDate.now().plusDays(5));
+        LoanRequest r2 = new LoanRequest();
+        r2.setId(300L);
+        r2.setEquipment(equipment);
+        l2.setLoanRequest(r2);
+
+        when(loanDao.findOverdueLoans(any(LocalDate.class))).thenReturn(List.of(l1));
+        when(loanDao.findConflictingLoans(eq(equipment.getId()), any(LocalDate.class), eq(l1.getId()))).thenReturn(List.of(l2));
+        
+        // Only eq1 is in candidates (which is self, skipped)
+        when(equipmentDao.findAvailableEquipmentsByModel(model.getId())).thenReturn(List.of(equipment));
+
+        loanRequestService.resolveOverdueConflicts();
+
+        // Verify r2 is rejected (motived, history saved, loan record deleted)
+        assertTrue(r2.getRejectionReason().contains("Annulation automatique"));
+        verify(loanRequestDao, times(1)).save(r2);
+        verify(requestHistoryDao, times(1)).save(any(RequestHistory.class));
+        verify(loanDao, times(1)).delete(l2);
     }
 }

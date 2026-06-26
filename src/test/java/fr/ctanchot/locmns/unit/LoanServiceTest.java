@@ -37,6 +37,9 @@ public class LoanServiceTest {
     @Mock
     private AppUserDao appUserDao;
 
+    @Mock
+    private fr.ctanchot.locmns.service.LoanRequestService loanRequestService;
+
     @InjectMocks
     private LoanService loanService;
 
@@ -64,10 +67,18 @@ public class LoanServiceTest {
     void save_ShouldSucceed_WhenEquipmentIsAvailable() {
         when(loanRequestDao.findById(4L)).thenReturn(Optional.of(loanRequest));
 
+        // Start: June 1 -> Buffer check starts May 31
+        // End: June 15 -> Buffer check ends June 16
         when(loanDao.existsOverlappingLoan(
                 eq(10L),
                 eq(1L),
-                any(LocalDate.class),
+                eq(LocalDate.of(2026, 5, 31)),
+                eq(LocalDate.of(2026, 6, 16))
+        )).thenReturn(false);
+
+        when(loanDao.existsActiveOverdueLoan(
+                eq(10L),
+                eq(1L),
                 any(LocalDate.class)
         )).thenReturn(false);
 
@@ -87,7 +98,32 @@ public class LoanServiceTest {
         when(loanDao.existsOverlappingLoan(
                 eq(10L),
                 eq(1L),
-                any(LocalDate.class),
+                eq(LocalDate.of(2026, 5, 31)),
+                eq(LocalDate.of(2026, 6, 16))
+        )).thenReturn(true);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            loanService.save(loan);
+        });
+
+        assertEquals("L'équipement n'est pas disponible pour cette période (conflit de dates).", exception.getMessage());
+        verify(loanDao, never()).save(any(Loan.class));
+    }
+
+    @Test
+    void save_ShouldThrowException_WhenEquipmentIsOverdue() {
+        when(loanRequestDao.findById(4L)).thenReturn(Optional.of(loanRequest));
+
+        when(loanDao.existsOverlappingLoan(
+                eq(10L),
+                eq(1L),
+                eq(LocalDate.of(2026, 5, 31)),
+                eq(LocalDate.of(2026, 6, 16))
+        )).thenReturn(false);
+
+        when(loanDao.existsActiveOverdueLoan(
+                eq(10L),
+                eq(1L),
                 any(LocalDate.class)
         )).thenReturn(true);
 
@@ -97,5 +133,15 @@ public class LoanServiceTest {
 
         assertEquals("L'équipement n'est pas disponible pour cette période (conflit de dates).", exception.getMessage());
         verify(loanDao, never()).save(any(Loan.class));
+    }
+
+    @Test
+    void findAll_ShouldCallResolveOverdueConflicts() {
+        when(loanDao.findAll()).thenReturn(java.util.List.of(loan));
+
+        java.util.List<Loan> result = loanService.findAll();
+
+        assertNotNull(result);
+        verify(loanRequestService, times(1)).resolveOverdueConflicts();
     }
 }
