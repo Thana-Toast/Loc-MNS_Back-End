@@ -39,11 +39,11 @@ jobs:
 
       - name: Build Docker image
         if: github.ref == 'refs/heads/main'
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ variables.PROJECT_NAME }} .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ vars.PROJECT_NAME }} .
 
       - name: Push Docker image
         if: github.ref == 'refs/heads/main'
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ variables.PROJECT_NAME }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ vars.PROJECT_NAME }}
 
       - name: Extract version from pom.xml
         if: github.ref == 'refs/heads/main'
@@ -52,8 +52,8 @@ jobs:
 
       - name: Tag image with version
         if: github.ref == 'refs/heads/main'
-        run: docker tag ${{ secrets.DOCKER_USERNAME }}/${{ variables.PROJECT_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ variables.PROJECT_NAME }}:${{ env.VERSION }}
+        run: docker tag ${{ secrets.DOCKER_USERNAME }}/${{ vars.PROJECT_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ vars.PROJECT_NAME }}:${{ env.VERSION }}
 
       - name: Push tag to Docker Hub
         if: github.ref == 'refs/heads/main'
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ variables.PROJECT_NAME }}:${{ env.VERSION }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ vars.PROJECT_NAME }}:${{ env.VERSION }}
