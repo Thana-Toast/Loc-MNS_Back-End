@@ -37,11 +37,11 @@ INSERT INTO category (id_category, label, description, id_parent_category) VALUE
 
 -- 3. UTILISATEURS
 INSERT INTO app_user (id_appuser, last_name, first_name, email, password, creation_date, is_anonymized) VALUES
-(1,'FRIEDMAN','Marty', 'admin@loc-alhost.com', '$2a$10$fh3NJAc286nAUmIagXYOTubaxkbDPILtyWEXEXPN5giaVNcluKrzO', NOW(), false),
-(2,'RHOADS','Randy', 'randy.r@gmail.com', '$2a$10$fh3NJAc286nAUmIagXYOTubaxkbDPILtyWEXEXPN5giaVNcluKrzO', NOW(), false),
-(3,'HAMMETT','Kirk', 'kirk.h@gmail.com', '$2a$10$fh3NJAc286nAUmIagXYOTubaxkbDPILtyWEXEXPN5giaVNcluKrzO', NOW(), false),
-(4,'MUSTAINE','Dave','dave.m@gmail.com','$2a$10$fh3NJAc286nAUmIagXYOTubaxkbDPILtyWEXEXPN5giaVNcluKrzO',NOW(),false),
-(5,'IOMMI','Tony','tony.i@gmail.com','$2a$10$fh3NJAc286nAUmIagXYOTubaxkbDPILtyWEXEXPN5giaVNcluKrzO',NOW(),false);
+(1,'FRIEDMAN','Marty', 'admin@loc-alhost.com', '$2a$10$BGj6LkD6GoTLWgA0E6/ZkOwPKPN4XMZlkaj0uw/WOkhxpEOpEhMDu', NOW(), false),
+(2,'RHOADS','Randy', 'randy.r@gmail.com', '$2a$10$BGj6LkD6GoTLWgA0E6/ZkOwPKPN4XMZlkaj0uw/WOkhxpEOpEhMDu', NOW(), false),
+(3,'HAMMETT','Kirk', 'kirk.h@gmail.com', '$2a$10$BGj6LkD6GoTLWgA0E6/ZkOwPKPN4XMZlkaj0uw/WOkhxpEOpEhMDu', NOW(), false),
+(4,'MUSTAINE','Dave','dave.m@gmail.com','$2a$10$BGj6LkD6GoTLWgA0E6/ZkOwPKPN4XMZlkaj0uw/WOkhxpEOpEhMDu',NOW(),false),
+(5,'IOMMI','Tony','tony.i@gmail.com','$2a$10$BGj6LkD6GoTLWgA0E6/ZkOwPKPN4XMZlkaj0uw/WOkhxpEOpEhMDu',NOW(),false);
 
 -- 4. ATTRIBUTION DES ROLES
 INSERT INTO user_role (id_appuser, id_role) VALUES (1, 1), (2, 2),(2,3), (3, 3), (4, 3),(5,3);
