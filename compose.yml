@@ -11,8 +11,7 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
-    networks:
-      - backend
+
 
   backend:
     container_name: loc-mns-backend
@@ -26,8 +25,7 @@ services:
       - .env
     environment:
       - DB_HOST=postgres
-    networks:
-      - backend
+
 
   frontend:
     container_name: loc-mns-frontend
@@ -50,6 +48,4 @@ volumes:
   postgres_data:
   npm_data:
   npm_letsencrypt:
-
-networks:
-  backend:
+
