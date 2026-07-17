@@ -17,6 +17,7 @@ services:
     depends_on:
       - postgres
     image: ${DOCKER_USERNAME}/loc-mns-back:latest
+    restart: always
     env_file:
       - .env
     environment:
