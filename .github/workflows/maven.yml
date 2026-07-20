@@ -17,7 +17,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
 
       - name: Update DB_HOST in application.properties
         run: sed -i 's/ ${DB_HOST} /postgres/' src/main/resources/application.properties
