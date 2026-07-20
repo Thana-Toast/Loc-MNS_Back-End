@@ -58,4 +58,20 @@ public class FileStorageService {
             throw new RuntimeException("Impossible de stocker le fichier " + fileName + ". Veuillez réessayer !", ex);
         }
     }
+
+    public boolean deleteFile(String imagePath) {
+        if (imagePath == null || imagePath.isBlank()) {
+            return false;
+        }
+
+        String fileName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+
+        try {
+            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            return Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            System.err.println("Impossible de supprimer le fichier " + fileName + ": " + e.getMessage());
+            return false;
+        }
+    }
 }
