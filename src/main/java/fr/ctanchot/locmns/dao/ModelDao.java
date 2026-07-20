@@ -15,4 +15,7 @@ public interface ModelDao extends JpaRepository<Model, Long> {
            "WHERE c.rolesWithAccess IS EMPTY " +
            "OR EXISTS (SELECT r FROM c.rolesWithAccess r WHERE r.label IN :roles)")
     List<Model> findModelsByAuthorizedCategories(@Param("roles") List<String> roles);
+
+    @Query("SELECT m.imagePath FROM Model m WHERE m.imagePath IS NOT NULL")
+    List<String> findAllImagePaths();
 }

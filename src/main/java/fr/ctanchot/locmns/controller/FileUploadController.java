@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+import fr.ctanchot.locmns.service.OrphanFileCleanupService;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/file")
@@ -22,6 +24,7 @@ import java.util.Map;
 public class FileUploadController {
 
     private final FileStorageService fileStorageService;
+    private final OrphanFileCleanupService orphanFileCleanupService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @IsAdmin
@@ -46,5 +49,15 @@ public class FileUploadController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @PostMapping("/cleanup-orphans")
+    @IsAdmin
+    @Operation(summary = "Nettoyer les fichiers orphelins", description = "Déclenche le nettoyage manuel de tous les fichiers du dossier /uploads non utilisés en BDD et datant de plus de 6h. Réservé aux administrateurs.")
+    @ApiResponse(responseCode = "200", description = "Nettoyage déclenché avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
+    public ResponseEntity<?> cleanupOrphans() {
+        orphanFileCleanupService.cleanOrphanFiles();
+        return ResponseEntity.ok(Map.of("message", "Nettoyage des fichiers orphelins déclenché avec succès."));
     }
 }
