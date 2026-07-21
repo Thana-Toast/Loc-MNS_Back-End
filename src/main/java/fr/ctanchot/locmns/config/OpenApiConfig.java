@@ -23,7 +23,7 @@ public class OpenApiConfig {
                         .version("1.0")
                         .description("Documentation interactive des points d'accès de l'application de suivi et de prêt du parc informatique Loc-MNS.")
                 )
-                .servers(List.of(new Server().url("/").description("Serveur principal (relatif)")))
+                .servers(List.of(new Server().url("/api").description("Serveur API Loc-MNS (/api)")))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
