@@ -35,6 +35,12 @@ public class GlobalExceptionInterceptor {
         return Map.of("Erreur", "Erreur de contrainte dans la base de données.");
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        return Map.of("error", "Accès refusé - Droits administrateur insuffisants.");
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleGenericException(Exception ex) {
