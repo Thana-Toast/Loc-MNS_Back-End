@@ -1,6 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.DocType;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.DocTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,9 +45,11 @@ public class DocTypeController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer un type de document", description = "Enregistre un nouveau type de document (ex: Notice PDF).")
+    @IsAdmin
+    @Operation(summary = "Créer un type de document", description = "Enregistre un nouveau type de document (ex: Notice PDF). Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Type créé avec succès")
     @ApiResponse(responseCode = "400", description = "Données de type invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     public ResponseEntity<DocType> create(
             @RequestBody
             @Valid
@@ -57,8 +60,10 @@ public class DocTypeController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un type de document", description = "Supprime définitivement un type de document de la base de données par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un type de document", description = "Supprime définitivement un type de document de la base de données par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Type supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Type introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<DocType> docType = docTypeService.findById(id);

@@ -1,6 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.WearHistory;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.WearHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,8 +17,9 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
+@IsAdmin
 @RequestMapping("/wear-history")
-@Tag(name = "10c. Historique - Usure", description = "Suivi de l'usure, dégradation et état physique du matériel")
+@Tag(name = "10c. Historique - Usure", description = "Suivi de l'usure, dégradation et état physique du matériel - Réservé aux Administrateurs")
 public class WearHistoryController {
 
     private final WearHistoryService wearHistoryService;

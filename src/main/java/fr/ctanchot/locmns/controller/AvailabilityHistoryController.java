@@ -1,6 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.AvailabilityHistory;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.AvailabilityHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,8 +17,9 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
+@IsAdmin
 @RequestMapping("/availability-history")
-@Tag(name = "10a. Historique - Disponibilités", description = "Suivi de l'état de disponibilité du matériel (Disponible, Loué, En réparation, Hors service)")
+@Tag(name = "10a. Historique - Disponibilités", description = "Suivi de l'état de disponibilité du matériel - Réservé aux Administrateurs")
 public class AvailabilityHistoryController {
 
     private final AvailabilityHistoryService availabilityHistoryService;

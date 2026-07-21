@@ -1,6 +1,7 @@
 package fr.ctanchot.locmns.controller;
 
 import fr.ctanchot.locmns.model.RequestHistory;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.RequestHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,8 +17,9 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
+@IsAdmin
 @RequestMapping("/request-history")
-@Tag(name = "10b. Historique - Demandes", description = "Suivi historique des demandes de prêt (création, modification, validation)")
+@Tag(name = "10b. Historique - Demandes", description = "Suivi historique des demandes de prêt - Réservé aux Administrateurs")
 public class RequestHistoryController {
 
     private final RequestHistoryService requestHistoryService;
