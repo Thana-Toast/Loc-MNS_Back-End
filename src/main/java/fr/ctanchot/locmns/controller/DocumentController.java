@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.DocumentDTO;
 import fr.ctanchot.locmns.dto.DocumentMapper;
 import fr.ctanchot.locmns.model.Document;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -51,9 +52,11 @@ public class DocumentController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer un nouveau document", description = "Enregistre un nouveau document lié à un modèle de matériel ou à un équipement spécifique.")
+    @IsAdmin
+    @Operation(summary = "Créer un nouveau document", description = "Enregistre un nouveau document lié à un modèle de matériel ou à un équipement spécifique. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Document créé avec succès")
     @ApiResponse(responseCode = "400", description = "Données de document invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     public ResponseEntity<DocumentDTO> create(
             @RequestBody
             @Valid
@@ -65,8 +68,10 @@ public class DocumentController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un document", description = "Met à jour le titre, le chemin de fichier ou les associations d'un document existant.")
+    @IsAdmin
+    @Operation(summary = "Mettre à jour un document", description = "Met à jour le titre, le chemin de fichier ou les associations d'un document existant. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Document mis à jour avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Document introuvable")
     public ResponseEntity<DocumentDTO> update(
             @PathVariable Long id,
@@ -82,8 +87,10 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un document", description = "Supprime définitivement un document de la base de données par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un document", description = "Supprime définitivement un document de la base de données par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Document supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Document introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Document> document = documentService.findById(id);

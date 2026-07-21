@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.CategoryDTO;
 import fr.ctanchot.locmns.dto.CategoryMapper;
 import fr.ctanchot.locmns.model.Category;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -51,9 +52,11 @@ public class CategoryController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer une nouvelle catégorie", description = "Enregistre une nouvelle catégorie de matériel.")
+    @IsAdmin
+    @Operation(summary = "Créer une nouvelle catégorie", description = "Enregistre une nouvelle catégorie de matériel. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Catégorie créée avec succès")
     @ApiResponse(responseCode = "400", description = "Données de catégorie invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     public ResponseEntity<CategoryDTO> create(
             @RequestBody
             @Valid
@@ -65,8 +68,10 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour une catégorie", description = "Met à jour le libellé, la description ou la catégorie parente d'une catégorie existante.")
+    @IsAdmin
+    @Operation(summary = "Mettre à jour une catégorie", description = "Met à jour le libellé, la description ou la catégorie parente d'une catégorie existante. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Catégorie mise à jour avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Catégorie introuvable")
     public ResponseEntity<CategoryDTO> update(
             @PathVariable Long id,
@@ -82,8 +87,10 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer une catégorie", description = "Supprime définitivement une catégorie de matériel de la base de données.")
+    @IsAdmin
+    @Operation(summary = "Supprimer une catégorie", description = "Supprime définitivement une catégorie de matériel de la base de données. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Catégorie supprimée avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Catégorie introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Category> category = categoryService.findById(id);

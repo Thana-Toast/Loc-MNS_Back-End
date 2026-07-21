@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.ModelDTO;
 import fr.ctanchot.locmns.dto.ModelMapper;
 import fr.ctanchot.locmns.model.Model;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.ModelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -51,9 +52,11 @@ public class ModelController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer un nouveau modèle", description = "Enregistre un nouveau modèle de matériel (marque, fiche technique, image, catégorie liée).")
+    @IsAdmin
+    @Operation(summary = "Créer un nouveau modèle", description = "Enregistre un nouveau modèle de matériel (marque, fiche technique, image, catégorie liée). Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Modèle créé avec succès")
     @ApiResponse(responseCode = "400", description = "Données de modèle invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     public ResponseEntity<ModelDTO> create(
             @RequestBody
             @Valid
@@ -65,8 +68,10 @@ public class ModelController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un modèle", description = "Met à jour la marque, la fiche technique ou la catégorie d'un modèle existant.")
+    @IsAdmin
+    @Operation(summary = "Mettre à jour un modèle", description = "Met à jour la marque, la fiche technique ou la catégorie d'un modèle existant. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Modèle mis à jour avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Modèle introuvable")
     public ResponseEntity<ModelDTO> update(
             @PathVariable Long id,
@@ -82,8 +87,10 @@ public class ModelController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un modèle", description = "Supprime définitivement un modèle de matériel de la base de données par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un modèle", description = "Supprime définitivement un modèle de matériel de la base de données par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Modèle supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Modèle introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Model> model = modelService.findById(id);

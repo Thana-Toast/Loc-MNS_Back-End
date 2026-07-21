@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.EquipmentDTO;
 import fr.ctanchot.locmns.dto.EquipmentMapper;
 import fr.ctanchot.locmns.model.Equipment;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.EquipmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,9 +53,11 @@ public class EquipmentController {
     }
 
     @PostMapping
-    @Operation(summary = "Ajouter un nouvel équipement", description = "Crée un nouvel équipement physique dans le stock (ex: avec numéro de série).")
+    @IsAdmin
+    @Operation(summary = "Ajouter un nouvel équipement", description = "Crée un nouvel équipement physique dans le stock (ex: avec numéro de série). Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Équipement créé avec succès")
     @ApiResponse(responseCode = "400", description = "Données d'équipement invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     public ResponseEntity<EquipmentDTO> create(
             @RequestBody
             @Valid
@@ -66,8 +69,10 @@ public class EquipmentController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un équipement", description = "Met à jour les informations d'un équipement existant (numéro de série, modèle lié).")
+    @IsAdmin
+    @Operation(summary = "Mettre à jour un équipement", description = "Met à jour les informations d'un équipement existant (numéro de série, modèle lié). Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Équipement mis à jour avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     public ResponseEntity<EquipmentDTO> update(
             @PathVariable Long id,
@@ -83,8 +88,10 @@ public class EquipmentController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un équipement", description = "Supprime définitivement un équipement du parc informatique par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un équipement", description = "Supprime définitivement un équipement du parc informatique par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Équipement supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Equipment> equipment = equipmentService.findById(id);
