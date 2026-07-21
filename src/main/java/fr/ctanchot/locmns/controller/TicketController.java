@@ -4,6 +4,7 @@ import fr.ctanchot.locmns.dto.TicketDTO;
 import fr.ctanchot.locmns.dto.TicketMapper;
 import fr.ctanchot.locmns.model.Ticket;
 import fr.ctanchot.locmns.model.TicketStatus;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -84,8 +85,10 @@ public class TicketController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un ticket d'incident", description = "Supprime définitivement un ticket d'incident de la base de données par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un ticket d'incident", description = "Supprime définitivement un ticket d'incident de la base de données par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Ticket supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Ticket introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Ticket> ticket = ticketService.findById(id);
@@ -97,8 +100,10 @@ public class TicketController {
     }
 
     @PatchMapping("/{id}/status")
-    @Operation(summary = "Changer le statut d'un ticket", description = "Ajoute une nouvelle entrée d'historique (ex: PENDING, RESOLVED, IN_PROGRESS) pour changer le statut actuel du ticket d'incident.")
+    @IsAdmin
+    @Operation(summary = "Changer le statut d'un ticket", description = "Ajoute une nouvelle entrée d'historique (ex: PENDING, RESOLVED, IN_PROGRESS) pour changer le statut actuel du ticket d'incident. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Statut mis à jour avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Ticket introuvable")
     public ResponseEntity<Void> changeStatus(@PathVariable Long id, @RequestParam TicketStatus status) {
         ticketService.changeStatus(id, status);

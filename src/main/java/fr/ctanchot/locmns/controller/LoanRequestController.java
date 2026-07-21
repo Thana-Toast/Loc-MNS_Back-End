@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.LoanRequestDTO;
 import fr.ctanchot.locmns.dto.LoanRequestMapper;
 import fr.ctanchot.locmns.model.LoanRequest;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.LoanRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -66,8 +67,10 @@ public class LoanRequestController {
     }
 
     @PostMapping("/{id}/reject")
-    @Operation(summary = "Refuser une demande de prêt", description = "Marque la demande d'emprunt comme refusée (REJECTED) dans son historique.")
+    @IsAdmin
+    @Operation(summary = "Refuser une demande de prêt", description = "Marque la demande d'emprunt comme refusée (REJECTED) dans son historique. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Demande refusée avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Demande introuvable")
     public ResponseEntity<Void> reject(@PathVariable Long id, @RequestBody(required = false) RejectionRequest body) {
         Optional<LoanRequest> loanRequest = loanRequestService.findById(id);
@@ -97,8 +100,10 @@ public class LoanRequestController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer une demande de prêt", description = "Supprime définitivement une demande d'emprunt de la base de données.")
+    @IsAdmin
+    @Operation(summary = "Supprimer une demande de prêt", description = "Supprime définitivement une demande d'emprunt de la base de données. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Demande supprimée avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Demande introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<LoanRequest> loanRequest = loanRequestService.findById(id);

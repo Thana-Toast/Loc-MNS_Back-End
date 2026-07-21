@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.LoanDTO;
 import fr.ctanchot.locmns.dto.LoanMapper;
 import fr.ctanchot.locmns.model.Loan;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.LoanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,9 +53,11 @@ public class LoanController {
     }
 
     @PostMapping
-    @Operation(summary = "Enregistrer un nouveau prêt", description = "Crée un prêt d'équipement et vérifie au préalable que l'équipement n'est pas déjà réservé sur la même période.")
+    @IsAdmin
+    @Operation(summary = "Enregistrer un nouveau prêt", description = "Crée un prêt d'équipement (valide une demande) et vérifie au préalable la disponibilité. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Prêt enregistré avec succès")
     @ApiResponse(responseCode = "400", description = "Conflit de dates ou données de prêt invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     public ResponseEntity<LoanDTO> create(
             @RequestBody
             @Valid
@@ -66,9 +69,11 @@ public class LoanController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un prêt", description = "Met à jour un prêt existant (dates ou date de retour effectif) tout en validant la disponibilité.")
+    @IsAdmin
+    @Operation(summary = "Mettre à jour un prêt", description = "Met à jour un prêt existant (dates ou date de retour effectif) tout en validant la disponibilité. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Prêt mis à jour avec succès")
     @ApiResponse(responseCode = "400", description = "Conflit de dates ou données de prêt invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Prêt introuvable")
     public ResponseEntity<LoanDTO> update(
             @PathVariable Long id,
@@ -84,8 +89,10 @@ public class LoanController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un prêt", description = "Supprime définitivement un prêt de la base de données par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un prêt", description = "Supprime définitivement un prêt de la base de données par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Prêt supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Prêt introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Loan> loan = loanService.findById(id);
