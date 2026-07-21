@@ -3,6 +3,7 @@ package fr.ctanchot.locmns.controller;
 import fr.ctanchot.locmns.dto.AppUserDTO;
 import fr.ctanchot.locmns.dto.AppUserMapper;
 import fr.ctanchot.locmns.model.AppUser;
+import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,7 +33,8 @@ public class AppUserController {
     }
 
     @GetMapping("/list")
-    @Operation(summary = "Récupérer la liste des utilisateurs", description = "Retourne la liste complète de tous les utilisateurs enregistrés au format DTO.")
+    @IsAdmin
+    @Operation(summary = "Récupérer la liste des utilisateurs", description = "Retourne la liste complète de tous les utilisateurs enregistrés au format DTO. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     @ApiResponse(responseCode = "403", description = "Accès refusé - Droits insuffisants")
     public List<AppUserDTO> getAll() {
@@ -57,9 +59,11 @@ public class AppUserController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer un nouvel utilisateur", description = "Enregistre un nouvel utilisateur en base de données. Le mot de passe sera automatiquement haché.")
+    @IsAdmin
+    @Operation(summary = "Créer un nouvel utilisateur", description = "Enregistre un nouvel utilisateur en base de données. Le mot de passe sera automatiquement haché. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès")
     @ApiResponse(responseCode = "400", description = "Données utilisateur invalides")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits insuffisants")
     public ResponseEntity<AppUserDTO> create(
         @Validated @RequestBody
         AppUserDTO userDtoToInsert
@@ -70,8 +74,10 @@ public class AppUserController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer un utilisateur", description = "Supprime définitivement un utilisateur de la base de données par son ID.")
+    @IsAdmin
+    @Operation(summary = "Supprimer un utilisateur", description = "Supprime définitivement un utilisateur de la base de données par son ID. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "204", description = "Utilisateur supprimé avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits insuffisants")
     @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 
@@ -87,8 +93,10 @@ public class AppUserController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour un utilisateur", description = "Met à jour les informations d'un utilisateur existant. Si un mot de passe est renseigné, il sera haché.")
+    @IsAdmin
+    @Operation(summary = "Mettre à jour un utilisateur", description = "Met à jour les informations d'un utilisateur existant. Si un mot de passe est renseigné, il sera haché. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Utilisateur mis à jour avec succès")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits insuffisants")
     @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
     public ResponseEntity<AppUserDTO> update(
         @PathVariable Long id,
