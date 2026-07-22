@@ -44,8 +44,10 @@ public class AppUserController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Récupérer un utilisateur par son ID", description = "Retourne un utilisateur unique en fonction de son identifiant numérique.")
+    @IsAdmin
+    @Operation(summary = "Récupérer un utilisateur par son ID", description = "Retourne un utilisateur unique en fonction de son identifiant numérique. Réservé aux administrateurs.")
     @ApiResponse(responseCode = "200", description = "Utilisateur trouvé et renvoyé")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
     @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
     public ResponseEntity<AppUserDTO> get(@PathVariable Long id) {
 
