@@ -5,10 +5,12 @@ import fr.ctanchot.locmns.dto.AppUserMapper;
 import fr.ctanchot.locmns.model.AppUser;
 import fr.ctanchot.locmns.security.IsAdmin;
 import fr.ctanchot.locmns.service.AppUserService;
+import fr.ctanchot.locmns.service.UserExportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,10 +28,12 @@ public class AppUserController {
 
     private final AppUserService appUserService;
     private final AppUserMapper appUserMapper;
+    private final UserExportService userExportService;
 
-    public AppUserController(AppUserService appUserService, AppUserMapper appUserMapper) {
+    public AppUserController(AppUserService appUserService, AppUserMapper appUserMapper, UserExportService userExportService) {
         this.appUserService = appUserService;
         this.appUserMapper = appUserMapper;
+        this.userExportService = userExportService;
     }
 
     @GetMapping("/list")
@@ -41,6 +45,36 @@ public class AppUserController {
         return appUserService.findAll().stream()
                 .map(appUserMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/export")
+    @IsAdmin
+    @Operation(summary = "Exporter la liste des utilisateurs", description = "Exporte la liste complète des utilisateurs au format CSV ou XML. Réservé aux administrateurs.")
+    @ApiResponse(responseCode = "200", description = "Fichier d'export généré avec succès")
+    @ApiResponse(responseCode = "400", description = "Format d'export non supporté (seuls 'csv' et 'xml' sont acceptés)")
+    @ApiResponse(responseCode = "403", description = "Accès refusé - Droits administrateur requis")
+    public ResponseEntity<byte[]> exportUsers(@RequestParam(defaultValue = "csv") String format) {
+        List<AppUser> users = appUserService.findAll();
+        byte[] data;
+        String fileName;
+        String contentType;
+
+        if ("xml".equalsIgnoreCase(format)) {
+            data = userExportService.exportToXml(users);
+            fileName = "utilisateurs_export.xml";
+            contentType = "application/xml; charset=UTF-8";
+        } else if ("csv".equalsIgnoreCase(format)) {
+            data = userExportService.exportToCsv(users);
+            fileName = "utilisateurs_export.csv";
+            contentType = "text/csv; charset=UTF-8";
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .body(data);
     }
 
     @GetMapping("/{id}")
