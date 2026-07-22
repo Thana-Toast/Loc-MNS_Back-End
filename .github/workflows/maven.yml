@@ -2,7 +2,7 @@ name: Java CI/CD Pipeline
 
 on:
   push:
-    branches: "**"
+    branches: [ "main", "dev" ]
 
 jobs:
   build-test-and-deploy:
