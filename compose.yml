@@ -27,6 +27,7 @@ services:
       - ./uploads:/app/uploads
     networks:
       - default
+      - proxy-network
 
   frontend:
     container_name: loc-mns-frontend
