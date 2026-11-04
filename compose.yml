@@ -9,7 +9,8 @@ services:
       TZ: UTC
     volumes:
       - postgres_data:/var/lib/postgresql
-
+    networks:
+      - default
 
   backend:
     container_name: loc-mns-backend
@@ -24,15 +25,21 @@ services:
       - DB_HOST=postgres
     volumes:
       - ./uploads:/app/uploads
-
+    networks:
+      - default
 
   frontend:
     container_name: loc-mns-frontend
     image: ${DOCKER_USERNAME}/loc-mns-front:latest
     restart: always
+    networks:
+      - default
+      - proxy-network
+
+networks:
+  default:
+  proxy-network:
+    external: true
 
 volumes:
   postgres_data:
-  npm_data:
-  npm_letsencrypt:
-
